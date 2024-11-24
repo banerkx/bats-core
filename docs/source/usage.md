@@ -1,12 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**usage.md Table Of Contents**
+
+- [Usage](#usage)
+  - [Parallel Execution](#parallel-execution)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Usage
 
-Bats comes with two manual pages. After installation you can view them with `man
-1 bats` (usage manual) and `man 7 bats` (writing test files manual). Also, you
+Bats comes with two manual pages. After installation you can view them with `man 1 bats` (usage manual) and `man 7 bats` (writing test files manual). Also, you
 can view the available command line options that Bats supports by calling Bats
 with the `-h` or `--help` options. These are the options that Bats currently
 supports:
 
-``` eval_rst
+```eval_rst
 .. program-output:: ../../bin/bats --help
 ```
 
@@ -85,7 +93,7 @@ $ cat /tmp/report.xml
 
 ## Parallel Execution
 
-``` eval_rst
+```eval_rst
 .. versionadded:: 1.0.0
 ```
 
@@ -110,5 +118,5 @@ If you have files where tests within the file would interfere with each other, y
 If you want more fine-grained control, you can `export BATS_NO_PARALLELIZE_WITHIN_FILE=true` in `setup_file()`
 or outside any function to disable parallelization only within the containing file.
 
-[tap-format]: https://testanything.org
 [gnu-parallel]: https://www.gnu.org/software/parallel/
+[tap-format]: https://testanything.org

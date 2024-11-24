@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**CODE_OF_CONDUCT.md Table Of Contents**
+
+- [Contributor Covenant Code of Conduct](#contributor-covenant-code-of-conduct)
+  - [Our Pledge](#our-pledge)
+  - [Our Standards](#our-standards)
+  - [Our Responsibilities](#our-responsibilities)
+  - [Scope](#scope)
+  - [Enforcement](#enforcement)
+  - [Project Maintainers](#project-maintainers)
+    - [Current Maintainers](#current-maintainers)
+    - [Past Maintainers](#past-maintainers)
+  - [Attribution](#attribution)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Contributor Covenant Code of Conduct
 
 ## Our Pledge
@@ -14,21 +31,21 @@ orientation.
 Examples of behavior that contributes to creating a positive environment
 include:
 
-* Using welcoming and inclusive language
-* Being respectful of differing viewpoints and experiences
-* Gracefully accepting constructive criticism
-* Focusing on what is best for the community
-* Showing empathy towards other community members
+- Using welcoming and inclusive language
+- Being respectful of differing viewpoints and experiences
+- Gracefully accepting constructive criticism
+- Focusing on what is best for the community
+- Showing empathy towards other community members
 
 Examples of unacceptable behavior by participants include:
 
-* The use of sexualized language or imagery and unwelcome sexual attention or
-advances
-* Trolling, insulting/derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others' private information, such as a physical or electronic
+- The use of sexualized language or imagery and unwelcome sexual attention or
+  advances
+- Trolling, insulting/derogatory comments, and personal or political attacks
+- Public or private harassment
+- Publishing others' private information, such as a physical or electronic
   address, without explicit permission
-* Other conduct which could reasonably be considered inappropriate in a
+- Other conduct which could reasonably be considered inappropriate in a
   professional setting
 
 ## Our Responsibilities
@@ -69,24 +86,23 @@ members of the project's leadership.
 
 ### Current Maintainers
 
-* [Bianca Tamayo][bt-gh]
-* [Mike Bland][mb-gh]
-* [Jason Karns][jk-gh]
-* [Andrew Martin][am-gh]
+- [Bianca Tamayo][bt-gh]
+- [Mike Bland][mb-gh]
+- [Jason Karns][jk-gh]
+- [Andrew Martin][am-gh]
 
 ### Past Maintainers
 
-* Sam Stephenson <<sstephenson@gmail.com>> (Original author)
+- Sam Stephenson \<<sstephenson@gmail.com>> (Original author)
 
 ## Attribution
 
 This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 1.4,
 available at [http://contributor-covenant.org/version/1/4][version]
 
-[bt-gh]: https://github.com/btamayo
-[mb-gh]: https://github.com/mbland
-[jk-gh]: https://github.com/jasonkarns
 [am-gh]: https://github.com/sublimino
-
+[bt-gh]: https://github.com/btamayo
 [homepage]: https://contributor-covenant.org
+[jk-gh]: https://github.com/jasonkarns
+[mb-gh]: https://github.com/mbland
 [version]: https://contributor-covenant.org/version/1/4/

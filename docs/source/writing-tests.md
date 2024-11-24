@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**writing-tests.md Table Of Contents**
+
+- [Writing tests](#writing-tests)
+  - [Tagging tests](#tagging-tests)
+    - [Special tags](#special-tags)
+      - [Focusing on tests with `bats:focus` tag](#focusing-on-tests-with-batsfocus-tag)
+    - [Filtering execution](#filtering-execution)
+  - [Comment syntax](#comment-syntax)
+  - [`run`: Test other commands](#run-test-other-commands)
+    - [When not to use `run`](#when-not-to-use-run)
+    - [`run` and pipes](#run-and-pipes)
+  - [`bats_pipe`: Run commands with pipes](#bats_pipe-run-commands-with-pipes)
+  - [`load`: Share common code](#load-share-common-code)
+    - [`load` argument resolution](#load-argument-resolution)
+  - [`bats_load_library`: Load system wide libraries](#bats_load_library-load-system-wide-libraries)
+  - [`skip`: Easily skip tests](#skip-easily-skip-tests)
+  - [`setup` and `teardown`: Pre- and post-test hooks](#setup-and-teardown-pre--and-post-test-hooks)
+  - [`bats_require_minimum_version <Bats version number>`](#bats_require_minimum_version-bats-version-number)
+  - [Code outside of test cases](#code-outside-of-test-cases)
+  - [File descriptor 3 (read this if Bats hangs)](#file-descriptor-3-read-this-if-bats-hangs)
+  - [Printing to the terminal](#printing-to-the-terminal)
+  - [Special variables](#special-variables)
+  - [Libraries and Add-ons](#libraries-and-add-ons)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Writing tests
 
 Each Bats test file is evaluated _n+1_ times, where _n_ is the number of
@@ -9,8 +37,6 @@ For more details about how Bats evaluates test files, see [Bats Evaluation
 Process][bats-eval] on the wiki.
 
 For sample test files, see [examples](https://github.com/bats-core/bats-core/tree/master/docs/examples).
-
-[bats-eval]: https://github.com/bats-core/bats-core/wiki/Bats-Evaluation-Process
 
 ## Tagging tests
 
@@ -43,14 +69,14 @@ after that directive. An additional `# bats file_tags=` directive will override
 the previously defined values:
 
 ```bash
-@test "Zeroth test" { 
+@test "Zeroth test" {
   # will have no tags
 }
 
 # bats file_tags=a:b
 # bats test_tags=c:d
 
-@test "First test" { 
+@test "First test" {
   # will be tagged a:b, c:d
 }
 
@@ -62,7 +88,7 @@ the previously defined values:
 ```
 
 Tags are case sensitive and must only consist of alphanumeric characters and `_`,
- `-`, or `:`. They must not contain whitespaces!
+`-`, or `:`. They must not contain whitespaces!
 The colon is intended as a separator for (recursive) namespacing.
 
 Tag lists must be separated by commas and are allowed to contain whitespace.
@@ -80,7 +106,7 @@ internal use.
 If a test with the tag `bats:focus` is encountered in a test suite,
 all other tests will be filtered out and only those tagged with this tag will be executed.
 
-In focus mode, the exit code of successful runs will be overridden to 1 to prevent CI from silently running on a subset of tests due to an accidentally committed `bats:focus` tag.    
+In focus mode, the exit code of successful runs will be overridden to 1 to prevent CI from silently running on a subset of tests due to an accidentally committed `bats:focus` tag.
 Should you require the true exit code, e.g. for a `git bisect` operation, you can disable this behavior by setting
 `BATS_NO_FAIL_FOCUS_RUN=1` when running `bats`, but make sure not to commit this to CI!
 
@@ -211,7 +237,7 @@ __Note__: In contrast to the above, testing that a command failed is best done v
 run ! command args ...
 ```
 
-because 
+because
 
 ```bash
 ! command args ...
@@ -221,7 +247,6 @@ will only fail the test if it is the last command and thereby determines the tes
 This is due to Bash's decision to (counterintuitively?) not trigger `set -e` on `!` commands.
 (See also [the associated gotcha](gotchas.html#my-negated-statement-e-g-true-does-not-fail-the-test-even-when-it-should))
 
-
 ### `run` and pipes
 
 Don't fool yourself with pipes when using `run`. Bash parses the pipe outside of `run`, not internal to its command. Take this example:
@@ -230,8 +255,8 @@ Don't fool yourself with pipes when using `run`. Bash parses the pipe outside of
 run command args ... | jq -e '.limit == 42'
 ```
 
-Here, `jq` receives no input (which is captured by `run`), 
-executes no filters, and always succeeds, so the test does not work as 
+Here, `jq` receives no input (which is captured by `run`),
+executes no filters, and always succeeds, so the test does not work as
 expected.
 
 To correctly handle commands with pipes see `bats_pipe`.
@@ -367,7 +392,7 @@ Instead, one should use `bats_load_library` together with setting
 `bats_load_library` has two modes of resolving requests:
 
 1. by relative path from the `BATS_LIB_PATH` to a file in the library
-2. by library name, expecting libraries to have a `load.bash` entrypoint
+1. by library name, expecting libraries to have a `load.bash` entrypoint
 
 For example if your `BATS_LIB_PATH` is set to
 `~/.bats/libs:/usr/lib/bats`, then `bats_load_library test_helper`
@@ -460,6 +485,7 @@ If this automatism does not work for your usecase, you can work around by specif
 `setup_suite`! However, defining `teardown_suite` is optional.
 
 <!-- markdownlint-disable  MD033 -->
+
 <details>
   <summary>Example of setup/{,_file,_suite} (and teardown{,_file,_suite}) call order</summary>
 For example the following call order would result from two files (file 1 with
@@ -492,6 +518,7 @@ fail the teardown. Unlike `@test`, failing commands within `teardown` won't
 trigger failure as ERREXIT is disabled.
 
 <!-- markdownlint-disable MD033 -->
+
 <details>
   <summary>Example of different teardown failure modes</summary>
 
@@ -548,10 +575,11 @@ is not yet upgraded.
 
 In general you should avoid code outside tests, because each test file will be evaluated many times.
 However, there are situations in which this might be useful, e.g. when you want to check for dependencies
-and fail immediately if they're not present. 
+and fail immediately if they're not present.
 
 In general, you should avoid printing outside of `@test`, `setup*` or `teardown*` functions.
 Have a look at section [printing to the terminal](#printing-to-the-terminal) for more details.
+
 ## File descriptor 3 (read this if Bats hangs)
 
 Bats makes a separation between output from the code under test and output that
@@ -586,6 +614,7 @@ bats provides a special file descriptor, `&3`, that you should use to print
 your custom text. Here are some detailed guidelines to refer to:
 
 - Printing **from within a test function**:
+
   - First you should consider if you want the text to be always visible or only
     when the test fails. Text that is output directly to stdout or stderr (file
     descriptor 1 or 2), ie `echo 'text'` is considered part of the test function
@@ -602,6 +631,7 @@ your custom text. Here are some detailed guidelines to refer to:
   true as for printing with test functions.
 
 - Printing **outside test or `setup*`/`teardown*` functions**:
+
   - You should avoid printing in free code: Due to the multiple executions
     contexts (`setup_file`, multiple `@test`s)  of test files, output
     will be printed more than once.
@@ -617,8 +647,6 @@ your custom text. Here are some detailed guidelines to refer to:
 
   - Due to internal pipes/redirects, output to stderr is always printed first.
 
-[tap-plan]: https://testanything.org/tap-specification.html#the-plan
-
 ## Special variables
 
 There are several global variables you can use to introspect on Bats tests:
@@ -628,8 +656,8 @@ There are several global variables you can use to introspect on Bats tests:
 - `$BATS_TEST_DIRNAME` is the directory in which the Bats test file is located.
 - `$BATS_TEST_NAMES` is an array of function names for each test case.
 - `$BATS_TEST_NAME` is the name of the function containing the current test case.
-- `BATS_TEST_NAME_PREFIX` will be prepended to the description of each test on 
-   stdout and in reports.
+- `BATS_TEST_NAME_PREFIX` will be prepended to the description of each test on
+  stdout and in reports.
 - `$BATS_TEST_DESCRIPTION` is the description of the current test case.
 - `BATS_TEST_RETRIES` is the maximum number of additional attempts that will be
   made on a failed test before it is finally considered failed.
@@ -642,11 +670,11 @@ There are several global variables you can use to introspect on Bats tests:
 - `$BATS_SUITE_TEST_NUMBER` is the (1-based) index of the current test case in the test suite (over all files).
 - `$BATS_TEST_TAGS` the tags of the current test.
 - `$BATS_TMPDIR` is the base temporary directory used by bats to create its
-   temporary files / directories.
-   (default: `$TMPDIR`. If `$TMPDIR` is not set, `/tmp` is used.)
+  temporary files / directories.
+  (default: `$TMPDIR`. If `$TMPDIR` is not set, `/tmp` is used.)
 - `$BATS_RUN_TMPDIR` is the location to the temporary directory used by bats to
-   store all its internal temporary files during the tests.
-   (default: `$BATS_TMPDIR/bats-run-$BATS_ROOT_PID-XXXXXX`)
+  store all its internal temporary files during the tests.
+  (default: `$BATS_TMPDIR/bats-run-$BATS_ROOT_PID-XXXXXX`)
 - `$BATS_FILE_EXTENSION` (default: `bats`) specifies the extension of test files that should be found when running a suite (via `bats [-r] suite_folder/`)
 - `$BATS_SUITE_TMPDIR` is a temporary directory common to all tests of a suite.
   Could be used to create files required by multiple tests.
@@ -670,3 +698,6 @@ and some external libraries, supported on a "best-effort" basis:
 - <https://github.com/ztombol/bats-docs> (still relevant? Requires review)
 - <https://github.com/grayhemp/bats-mock> (as per #147)
 - <https://github.com/jasonkarns/bats-mock> (how is this different from grayhemp/bats-mock?)
+
+[bats-eval]: https://github.com/bats-core/bats-core/wiki/Bats-Evaluation-Process
+[tap-plan]: https://testanything.org/tap-specification.html#the-plan

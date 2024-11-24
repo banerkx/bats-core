@@ -1,3 +1,13 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**README.md Table Of Contents**
+
+- [Our Logo](#our-logo)
+  - [Usage Guide for Third Parties](#usage-guide-for-third-parties)
+  - [Credits](#credits)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Our Logo
 
 <div align="center">

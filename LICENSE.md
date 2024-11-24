@@ -1,3 +1,5 @@
+# BATS License
+
 Copyright (c) 2017 bats-core contributors
 
 Permission is hereby granted, free of charge, to any person obtaining

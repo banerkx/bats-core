@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**releasing.md Table Of Contents**
+
+- [Releasing a new Bats version](#releasing-a-new-bats-version)
+  - [Update docs/CHANGELOG.md](#update-docschangelogmd)
+  - [Bumping the version number](#bumping-the-version-number)
+  - [Create a GitHub release](#create-a-github-release)
+  - [NPM](#npm)
+  - [Homebrew](#homebrew)
+  - [Alpine Linux](#alpine-linux)
+  - [Announce](#announce)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Releasing a new Bats version
 
 These notes reflect the current process. There's a lot more we could do, in
@@ -50,20 +65,17 @@ $ git push --follow-tags
 
 Then visit https://github.com/bats-core/bats-core/releases, and:
 
-* Click **Draft a new release**.
-* Select the new version tag.
-* Name the release: `Bats <VERSION>`.
-* Paste the same notes from the version tag annotation as the description,
+- Click **Draft a new release**.
+- Select the new version tag.
+- Name the release: `Bats <VERSION>`.
+- Paste the same notes from the version tag annotation as the description,
   except change the first line to read: `Released: YYYY-MM-DD`.
-* Click **Publish release**.
+- Click **Publish release**.
 
 For more on `git push --follow-tags`, see:
 
-* [git push --follow-tags in the online manual][ft-man]
-* [Stack Overflow: How to push a tag to a remote repository using Git?][ft-so]
-
-[ft-man]: https://git-scm.com/docs/git-push#git-push---follow-tags
-[ft-so]: https://stackoverflow.com/a/26438076
+- [git push --follow-tags in the online manual][ft-man]
+- [Stack Overflow: How to push a tag to a remote repository using Git?][ft-so]
 
 ## NPM
 
@@ -77,8 +89,6 @@ For the paranoid, use `npm pack` and install the resulting tarball locally with
 The basic instructions are in the [Submit a new version of an existing
 formula][brew] section of the Homebrew docs.
 
-[brew]: https://github.com/Homebrew/brew/blob/master/docs/How-To-Open-a-Homebrew-Pull-Request.md#submit-a-new-version-of-an-existing-formula
-
 An example using v1.1.0 (notice that this uses the sha256 sum of the tarball):
 
 ```bash
@@ -91,6 +101,7 @@ $ brew bump-formula-pr \
   --url=https://github.com/bats-core/bats-core/archive/v1.1.0.tar.gz \
   --sha256=855d8b8bed466bc505e61123d12885500ef6fcdb317ace1b668087364717ea82
 ```
+
 This resulted in https://github.com/Homebrew/homebrew-core/pull/29864, which was
 automatically merged once the build passed.
 
@@ -115,8 +126,6 @@ by adding/uncommenting the corresponding entry in `/etc/apk/repositories`.
 It's worth making a brief announcement like [the v1.1.0 announcement via
 Gitter][gitter]:
 
-[gitter]: https://gitter.im/bats-core/bats-core?at=5b42c9a57b811a6d63daacb5
-
 ```
 v1.1.0 is now available via Homebrew and npm:
 https://github.com/bats-core/bats-core/releases/tag/v1.1.0
@@ -125,3 +134,8 @@ It'll eventually be available in Alpine via the edge branch of the community
 repo once alpinelinux/aports#4696 gets merged. (Check /etc/apk/repositories to
 ensure this repo is enabled.)
 ```
+
+[brew]: https://github.com/Homebrew/brew/blob/master/docs/How-To-Open-a-Homebrew-Pull-Request.md#submit-a-new-version-of-an-existing-formula
+[ft-man]: https://git-scm.com/docs/git-push#git-push---follow-tags
+[ft-so]: https://stackoverflow.com/a/26438076
+[gitter]: https://gitter.im/bats-core/bats-core?at=5b42c9a57b811a6d63daacb5

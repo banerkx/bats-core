@@ -1,79 +1,93 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**CONTRIBUTING.md Table Of Contents**
+
+- [Contributing Guidelines](#contributing-guidelines)
+  - [Welcome!](#welcome)
+  - [Table of contents](#table-of-contents)
+  - [Quick links](#quick-links)
+  - [Code of conduct](#code-of-conduct)
+  - [Asking questions](#asking-questions)
+  - [Updating documentation](#updating-documentation)
+  - [Testing](#testing)
+  - [Coding conventions](#coding-conventions)
+    - [Function declarations](#function-declarations)
+    - [Variable and parameter declarations](#variable-and-parameter-declarations)
+    - [Command substitution](#command-substitution)
+    - [Process substitution](#process-substitution)
+    - [Conditionals and loops](#conditionals-and-loops)
+    - [Generating output](#generating-output)
+    - [Signal names](#signal-names)
+  - [Credits](#credits)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Contributing Guidelines
 
 ## Welcome!
 
-Thank you for considering contributing to this project's 
+Thank you for considering contributing to this project's
 development and/or documentation. Just a reminder: if you're new to this project
-or to OSS and want to find issues to work on, please check the following labels 
+or to OSS and want to find issues to work on, please check the following labels
 on issues:
 
 - [help wanted][helpwantedlabel]
 - [docs][docslabel]
 - [good first issue][goodfirstissuelabel]
 
-[docslabel]:           https://github.com/bats-core/bats-core/labels/docs
-[helpwantedlabel]:     https://github.com/bats-core/bats-core/labels/help%20wanted
-[goodfirstissuelabel]: https://github.com/bats-core/bats-core/labels/good%20first%20issue
-
 To see all labels and their meanings, [check this wiki page][labelswiki].
-
-[labelswiki]: https://github.com/bats-core/bats-core/wiki/GitHub-Issue-Labels
 
 ## Table of contents
 
-* [Contributing Guidelines](#contributing-guidelines)
-  * [Welcome!](#welcome)
-  * [Table of contents](#table-of-contents)
-  * [Quick links](#quick-links)
-  * [Code of conduct](#code-of-conduct)
-  * [Asking questions](#asking-questions)
-  * [Updating documentation](#updating-documentation)
-  * [Testing](#testing)
-  * [Coding conventions](#coding-conventions)
-      * [Function declarations](#function-declarations)
-      * [Variable and parameter declarations](#variable-and-parameter-declarations)
-      * [Command substitution](#command-substitution)
-      * [Process substitution](#process-substitution)
-      * [Conditionals and loops](#conditionals-and-loops)
-      * [Generating output](#generating-output)
-      * [Signal names](#signal-names)
-      * [Gotchas](#gotchas)
-  * [Open Source License](#open-source-license)
-  * [Credits](#credits)
+- [Contributing Guidelines](#contributing-guidelines)
+  - [Welcome!](#welcome)
+  - [Table of contents](#table-of-contents)
+  - [Quick links](#quick-links)
+  - [Code of conduct](#code-of-conduct)
+  - [Asking questions](#asking-questions)
+  - [Updating documentation](#updating-documentation)
+  - [Testing](#testing)
+  - [Coding conventions](#coding-conventions)
+    - [Function declarations](#function-declarations)
+    - [Variable and parameter declarations](#variable-and-parameter-declarations)
+    - [Command substitution](#command-substitution)
+    - [Process substitution](#process-substitution)
+    - [Conditionals and loops](#conditionals-and-loops)
+    - [Generating output](#generating-output)
+    - [Signal names](#signal-names)
+    - [Gotchas](#gotchas)
+  - [Open Source License](#open-source-license)
+  - [Credits](#credits)
 
 ## Quick links
 
 - [Gitter channel →][gitterurl]: Feel free to come chat with us on Gitter
-- [README →][README]
-- [Code of conduct →][CODE_OF_CONDUCT]
-- [License information →][LICENSE]
+- [README →][readme]
+- [Code of conduct →][code_of_conduct]
+- [License information →][license]
 - [Original repository →][repohome]
 - [Issues →][repoissues]
 - [Pull requests →][repoprs]
 - [Milestones →][repomilestones]
 - [Projects →][repoprojects]
 
-[README]: https://github.com/bats-core/bats-core/blob/master/README.md
-[CODE_OF_CONDUCT]: https://github.com/bats-core/bats-core/blob/master/docs/CODE_OF_CONDUCT.md
-[LICENSE]: https://github.com/bats-core/bats-core/blob/master/LICENSE.md
-
 ## Code of conduct
 
 Harassment or rudeness of any kind will not be tolerated, period. For
-specifics, see the [CODE_OF_CONDUCT][] file.
+specifics, see the [CODE_OF_CONDUCT] file.
 
 ## Asking questions
 
-Please check the [documentation][documentation] or existing [discussions][] and [issues][repoissues] first.
+Please check the [documentation] or existing [discussions] and [issues][repoissues] first.
 
-If you cannot find an answer to your question, please feel free to hop on our 
+If you cannot find an answer to your question, please feel free to hop on our
 [Gitter][gitterurl]. [![Gitter](https://badges.gitter.im/bats-core/bats-core.svg)](https://gitter.im/bats-core/bats-core)
 
 ## Updating documentation
 
 We love documentation and people who love documentation!
 
-If you love writing clear, accessible docs, please don't be shy about pull 
+If you love writing clear, accessible docs, please don't be shy about pull
 requests. Remember: docs are just as important as code.
 
 Also: _no typo is too small to fix!_ Really. Of course, batches of fixes are
@@ -84,17 +98,19 @@ preferred, but even one nit is one nit too many.
 - Continuous integration status: [![Tests](https://github.com/bats-core/bats-core/workflows/Tests/badge.svg)](https://github.com/bats-core/bats-core/actions?query=workflow%3ATests)
 
 To run all tests:
+
 ```sh
 bin/bats test
 ```
 
 To run a single test file:
+
 ```sh
 bin/bats test/file.bats
 ```
 
 When running from a terminal, Bats uses the *pretty* formatter by default.
-However, to debug Bats you might need to see the raw test output. 
+However, to debug Bats you might need to see the raw test output.
 The **cat** formatter is intended as an internal debugging tool because
 it does not process test outputs.
 To use it, run Bats with the `--formatter cat` option.
@@ -154,9 +170,6 @@ Use `snake_case` for all identifiers.
 - If you must use command substitution, use `$()` instead of backticks, as it's
   more robust, more searchable, and can be nested.
 
-[win-slow]: https://rufflewind.com/2014-08-23/windows-bash-slow
-[pr-8]: https://github.com/bats-core/bats-core/pull/8
-
 ### Process substitution
 
 - If possible, don't use it. See the advice on avoiding subprocesses and using
@@ -186,13 +199,11 @@ Use `snake_case` for all identifiers.
   See [Stack Overflow: Why is printf better than echo?][printf-vs-echo] for
   excruciating details.
 
-[printf-vs-echo]: https://unix.stackexchange.com/a/65819
-
 ### Signal names
 
-Always use upper case signal names (e.g. `trap - INT EXIT`) to avoid locale 
-dependent errors. In some locales (for example Turkish, see 
-[Turkish dotless i](https://en.wikipedia.org/wiki/Dotted_and_dotless_I)) lower 
+Always use upper case signal names (e.g. `trap - INT EXIT`) to avoid locale
+dependent errors. In some locales (for example Turkish, see
+[Turkish dotless i](https://en.wikipedia.org/wiki/Dotted_and_dotless_I)) lower
 case signal names cause Bash to error. An example of the problem:
 
 ```bash
@@ -203,30 +214,35 @@ $ LC_CTYPE=tr_TR.UTF-8 LC_MESSAGES=C bash -c 'trap - INT && echo success'
 success
 ```
 
-
 ## Credits
 
 The [official bash logo](https://github.com/odb/official-bash-logo) is copyrighted
 by the [Free Software Foundation](https://www.fsf.org/), 2016 under the [Free Art License](http://artlibre.org/licence/lal/en/)
 
-This guide borrows **heavily** from [@mbland's go-script-bash][gsb] (with some 
+This guide borrows **heavily** from [@mbland's go-script-bash][gsb] (with some
 sections directly quoted), which in turn was
 drafted with tips from [Wrangling Web Contributions: How to Build
 a CONTRIBUTING.md][moz] and with some inspiration from [the Atom project's
 CONTRIBUTING.md file][atom].
 
-[gsb]:  https://github.com/mbland/go-script-bash/blob/master/CONTRIBUTING.md
-[moz]:  https://mozillascience.github.io/working-open-workshop/contributing/
 [atom]: https://github.com/atom/atom/blob/master/CONTRIBUTING.md
-
-[discussions]:    https://github.com/bats-core/bats-core/discussions
-[documentation]:  https://bats-core.readthedocs.io/
-[repoprojects]:   https://github.com/bats-core/bats-core/projects
+[code_of_conduct]: https://github.com/bats-core/bats-core/blob/master/docs/CODE_OF_CONDUCT.md
+[discussions]: https://github.com/bats-core/bats-core/discussions
+[docslabel]: https://github.com/bats-core/bats-core/labels/docs
+[documentation]: https://bats-core.readthedocs.io/
+[gitterurl]: https://gitter.im/bats-core/bats-core
+[goodfirstissuelabel]: https://github.com/bats-core/bats-core/labels/good%20first%20issue
+[gsb]: https://github.com/mbland/go-script-bash/blob/master/CONTRIBUTING.md
+[helpwantedlabel]: https://github.com/bats-core/bats-core/labels/help%20wanted
+[labelswiki]: https://github.com/bats-core/bats-core/wiki/GitHub-Issue-Labels
+[license]: https://github.com/bats-core/bats-core/blob/master/LICENSE.md
+[moz]: https://mozillascience.github.io/working-open-workshop/contributing/
+[pr-8]: https://github.com/bats-core/bats-core/pull/8
+[printf-vs-echo]: https://unix.stackexchange.com/a/65819
+[readme]: https://github.com/bats-core/bats-core/blob/master/README.md
+[repohome]: https://github.com/bats-core/bats-core
+[repoissues]: https://github.com/bats-core/bats-core/issues
 [repomilestones]: https://github.com/bats-core/bats-core/milestones
-[repoprs]:        https://github.com/bats-core/bats-core/pulls
-[repoissues]:     https://github.com/bats-core/bats-core/issues
-[repohome]:       https://github.com/bats-core/bats-core
-
-[osmit]:          https://opensource.org/licenses/MIT
-
-[gitterurl]:      https://gitter.im/bats-core/bats-core
+[repoprojects]: https://github.com/bats-core/bats-core/projects
+[repoprs]: https://github.com/bats-core/bats-core/pulls
+[win-slow]: https://rufflewind.com/2014-08-23/windows-bash-slow

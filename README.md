@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**README.md Table Of Contents**
+
+- [Bats-core: Bash Automated Testing System](#bats-core-bash-automated-testing-system)
+  - [Table of contents](#table-of-contents)
+  - [Testing](#testing)
+  - [Support](#support)
+  - [Contributing](#contributing)
+  - [Contact](#contact)
+  - [Version history](#version-history)
+  - [Background](#background)
+    - [Why was this fork created?](#why-was-this-fork-created)
+  - [Copyright](#copyright)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 [![Latest release](https://img.shields.io/github/release/bats-core/bats-core.svg)](https://github.com/bats-core/bats-core/releases/latest)
 [![npm package](https://img.shields.io/npm/v/bats.svg)](https://www.npmjs.com/package/bats)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/bats-core/bats-core/blob/master/LICENSE.md)
@@ -56,8 +73,8 @@ each line is an assertion of truth.
 - [Contact](#contact)
 - [Version history](#version-history)
 - [Background](#background)
-  * [What's the plan and why?](#whats-the-plan-and-why)
-  * [Why was this fork created?](#why-was-this-fork-created)
+  - [What's the plan and why?](#whats-the-plan-and-why)
+  - [Why was this fork created?](#why-was-this-fork-created)
 - [Copyright](#copyright)
 
 <!-- tocstop -->
@@ -101,23 +118,20 @@ See `docs/CHANGELOG.md`.
 ## Background
 
 <!-- markdownlint-disable MD026 -->
+
 ### Why was this fork created?
+
 <!-- markdownlint-enable MD026 -->
 
 There was an initial [call for maintainers][call-maintain] for the original Bats repository, but write access to it could not be obtained. With development activity stalled, this fork allowed ongoing maintenance and forward progress for Bats.
 
 **Tuesday, September 19, 2017:** This was forked from [Bats][bats-orig] at
-commit [0360811][].  It was created via `git clone --bare` and `git push
---mirror`.
+commit [0360811].  It was created via `git clone --bare` and `git push --mirror`.
 
 As of **Thursday, April 29, 2021:** the original [Bats][bats-orig] has been
 archived by the owner and is now read-only.
 
 This [bats-core](https://github.com/bats-core/bats-core) repo is now the community-maintained Bats project.
-
-[call-maintain]: https://github.com/sstephenson/bats/issues/150
-[bats-orig]: https://github.com/sstephenson/bats
-[0360811]: https://github.com/sstephenson/bats/commit/03608115df2071fff4eaaff1605768c275e5f81f
 
 ## Copyright
 
@@ -132,4 +146,7 @@ Bats is released under an MIT-style license; see `LICENSE.md` for details.
 See the [parent project](https://github.com/bats-core) at GitHub or the
 [AUTHORS](AUTHORS) file for the current project maintainer team.
 
+[0360811]: https://github.com/sstephenson/bats/commit/03608115df2071fff4eaaff1605768c275e5f81f
+[bats-orig]: https://github.com/sstephenson/bats
+[call-maintain]: https://github.com/sstephenson/bats/issues/150
 [gitter]: https://gitter.im/bats-core/bats-core

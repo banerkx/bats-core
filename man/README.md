@@ -1,3 +1,5 @@
+# BATS man Pages
+
 Bats man pages are generated with [Ronn](http://rtomayko.github.io/ronn/).
 
 After making changes to `bats.1.ronn` or `bats.7.ronn`, run `make` in

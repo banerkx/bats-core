@@ -1,3 +1,5 @@
+# BATS Pull Request Template
+
 - [ ] I have reviewed the [Contributor Guidelines][contributor].
 - [ ] I have reviewed the [Code of Conduct][coc] and agree to abide by it
 
