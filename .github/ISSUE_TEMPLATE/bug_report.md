@@ -2,11 +2,11 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **bats-core/.github/ISSUE_TEMPLATE/bug_report.md Table Of Contents**
 
-- [BATS Bug Repost](#bats-bug-repost)
+- [BATS Bug Report](#bats-bug-report)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# BATS Bug Repost
+# BATS Bug Report
 
 ______________________________________________________________________
 
