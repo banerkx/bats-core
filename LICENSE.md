@@ -1,3 +1,11 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**bats-core/LICENSE.md Table Of Contents**
+
+- [BATS License](#bats-license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # BATS License
 
 Copyright (c) 2017 bats-core contributors
@@ -21,9 +29,9 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
----
+______________________________________________________________________
 
-* [bats-core] is a continuation of [bats]. Copyright for portions of the
+- [bats-core] is a continuation of [bats]. Copyright for portions of the
   bats-core project are held by Sam Stephenson, 2014 as part of the project
   [bats], licensed under MIT:
 
@@ -50,6 +58,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 For details, please see the [version control history][commits].
 
+[bats]: https://github.com/sstephenson/bats
 [bats-core]: https://github.com/bats-core/bats-core
-[bats]:https://github.com/sstephenson/bats
-[commits]:https://github.com/bats-core/bats-core/commits/master
+[commits]: https://github.com/bats-core/bats-core/commits/master
