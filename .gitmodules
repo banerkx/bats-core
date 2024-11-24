@@ -1,0 +1,15 @@
+[submodule "bats-file"]
+  path = bats-file
+  url = https://github.com/banerkx/bats-file.git
+[submodule "bats-support"]
+  path = bats-support
+  url = https://github.com/banerkx/bats-support.git
+[submodule "bats-mock"]
+  path = bats-mock
+  url = https://github.com/banerkx/bats-mock.git
+[submodule "bats-mock-grayhemp"]
+  path = bats-mock-grayhemp
+  url = https://github.com/banerkx/bats-mock-grayhemp.git
+[submodule "bats-assert"]
+  path = bats-assert
+  url = https://github.com/banerkx/bats-assert.git
