@@ -1,3 +1,94 @@
+################################################################################
+# To ensure that text files, in the repository itself (but not necessarily on  #
+# disk), line endings are LF and **not** CRLF. This file should be placed in   #
+# the root directory of your repository.                                       #
+#                                                                              #
+# See:                                                                         #
+#   https://adaptivepatchwork.com/2012/03/01/mind-the-end-of-your-line/        #
+################################################################################
+
+################################################################################
+# Treat all files as text files (except for the exceptions below). This means  #
+# that CRLF will be changed to LF.                                             #
+################################################################################
 * text=auto
-*.sh eol=lf
-libexec/* eol=lf
+
+################################################################################
+# The following text file extensions should have Unix line endings.            #
+################################################################################
+*.bash text eol=cr
+*.bats text eol=cr
+*.gpg  text eol=cr
+*.json text eol=cr
+*.md   text eol=cr
+*.py   text eol=cr
+*.ronn text eol=cr
+*.rst  text eol=cr
+*.sh   text eol=cr
+*.spec text eol=cr
+*.svg  text eol=cr
+*.txt  text eol=cr
+*.yaml text eol=cr
+*.yml  text eol=cr
+
+################################################################################
+# The following dot files should should have Unix line endings.                #
+################################################################################
+.codespellrc  text eol=cr
+.editorconfig text eol=cr
+.gitignore    text eol=cr
+.gitkeep      text eol=cr
+.gitmodules   text eol=cr
+
+################################################################################
+# The following text files should should have Unix line endings.               #
+################################################################################
+.devcontainer/Dockerfile                                                        text eol=cr
+AUTHORS                                                                         text eol=cr
+Dockerfile                                                                      text eol=cr
+bin/bats                                                                        text eol=cr
+contrib/semver                                                                  text eol=cr
+docs/CODEOWNERS                                                                 text eol=cr
+docs/Makefile                                                                   text eol=cr
+docs/examples/package-tarball                                                   text eol=cr
+libexec/bats-core/bats                                                          text eol=cr
+libexec/bats-core/bats-exec-file                                                text eol=cr
+libexec/bats-core/bats-exec-suite                                               text eol=cr
+libexec/bats-core/bats-exec-test                                                text eol=cr
+libexec/bats-core/bats-format-cat                                               text eol=cr
+libexec/bats-core/bats-format-junit                                             text eol=cr
+libexec/bats-core/bats-format-pretty                                            text eol=cr
+libexec/bats-core/bats-format-tap                                               text eol=cr
+libexec/bats-core/bats-format-tap13                                             text eol=cr
+libexec/bats-core/bats-gather-tests                                             text eol=cr
+libexec/bats-core/bats-preprocess                                               text eol=cr
+man/Makefile                                                                    text eol=cr
+misc/http_urls                                                                  text eol=cr
+test/fixtures/bats/date                                                         text eol=cr
+test/fixtures/formatter/dummy-formatter                                         text eol=cr
+test/fixtures/formatter/echo-formatter                                          text eol=cr
+test/fixtures/load/ambiguous                                                    text eol=cr
+test/fixtures/suite/override_BATS_FILE_EXTENSION/subfolder/test.other_extension text eol=cr
+test/fixtures/suite/override_BATS_FILE_EXTENSION/test.test                      text eol=cr
+test/fixtures/suite_setup_teardown/syntax_error/setup_suite_no_shellcheck       text eol=cr
+
+################################################################################
+# The following "dot" text files should should have Unix line endings.         #
+################################################################################
+.LICENSE       text eol=cr
+.README        text eol=cr
+.dockerignore  text eol=cr
+.gitattributes text eol=cr
+.gitignore     text eol=cr
+.gitkeep       text eol=cr
+.gitmodules    text eol=cr
+
+################################################################################
+# The following text file extensions should have Windows line endings.         #
+################################################################################
+*.bat    text eol=crlf
+
+################################################################################
+# The following files are binary.                                              #
+################################################################################
+
