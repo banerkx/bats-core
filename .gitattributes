@@ -32,15 +32,6 @@
 *.yml  text eol=cr
 
 ################################################################################
-# The following dot files should should have Unix line endings.                #
-################################################################################
-.codespellrc  text eol=cr
-.editorconfig text eol=cr
-.gitignore    text eol=cr
-.gitkeep      text eol=cr
-.gitmodules   text eol=cr
-
-################################################################################
 # The following text files should should have Unix line endings.               #
 ################################################################################
 .devcontainer/Dockerfile                                                        text eol=cr
@@ -77,10 +68,15 @@ test/fixtures/suite_setup_teardown/syntax_error/setup_suite_no_shellcheck       
 ################################################################################
 .LICENSE       text eol=cr
 .README        text eol=cr
+.codespellrc   text eol=cr
 .dockerignore  text eol=cr
+.editorconfig  text eol=cr
 .gitattributes text eol=cr
 .gitignore     text eol=cr
+.gitignore     text eol=cr
 .gitkeep       text eol=cr
+.gitkeep       text eol=cr
+.gitmodules    text eol=cr
 .gitmodules    text eol=cr
 
 ################################################################################
