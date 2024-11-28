@@ -7,3 +7,9 @@ https://github.com/bats-core/bats-file
 https://github.com/bats-core/bats-support
 https://github.com/grayhemp/bats-mock
 https://github.com/jasonkarns/bats-mock
+
+FORKS:
+http://github.com/banerkx/bats-core.git
+
+git chlone --recurse-submodule http://github.com/banerkx/bats-core.git
+
