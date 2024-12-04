@@ -10,10 +10,11 @@ https://github.com/grayhemp/bats-mock bats-mock-grayhemp
 
 FORKS:
 http://github.com/banerkx/bats-core.git
-git@github.com:banerkx/bats-core.git
-git@github.com:banerkx/bats-file.git
-git@github.com:banerkx/bats-support.git
-git@github.com:banerkx/bats-mock.git
-git@github.com:banerkx/bats-mock-grayhemp.git
+http://github.com/banerkx/bats-core.git
+http://github.com/banerkx/bats-file.git
+http://github.com/banerkx/bats-support.git
+http://github.com/banerkx/bats-mock.git
+http://github.com/banerkx/bats-mock-grayhemp.git
+
 git chlone --recurse-submodule http://github.com/banerkx/bats-core.git
 
