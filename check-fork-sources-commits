@@ -1,0 +1,348 @@
+#!/bin/bash
+
+declare -r SCRIPT=${0##*/}
+
+# ${1} - message
+# ${2} - message level
+# ${3} - line number (optional)
+function log_message
+{
+  if [[ ! -v ESCAPE ]]
+  then
+    declare -rg ESCAPE=""
+  fi
+
+  if [[ ! -v STOP_COLOR ]]
+  then
+    local -r STOP_COLOR="${ESCAPE}[0m"
+  fi
+
+  local message_level=${2}
+  if [[ -t 1 ]]
+  then
+    case ${2} in
+      ERROR   ) if [[ ! -v RED ]]
+                then
+                  declare -rg RED="${ESCAPE}[0;31m"
+                fi
+                message_level=${RED}${message_level}${STOP_COLOR};;
+      WARNING ) if [[ ! -v YELLOW ]]
+                then
+                  declare -rg YELLOW="${ESCAPE}[1;33m"
+                fi
+                message_level=${YELLOW}${message_level}${STOP_COLOR};;
+      INFO    ) if [[ ! -v GREEN ]]
+                then
+                  declare -rg GREEN="${ESCAPE}[0;32m"
+                fi
+                message_level=${GREEN}${message_level}${STOP_COLOR};;
+      *       ) :;;
+    esac
+  fi
+
+################################################################################
+# NOTE: Want to replace the value of the HOME environment variable with the    #
+#       literal string '${HOME}' in the message.                               #
+################################################################################
+  local stack="${SCRIPT}"
+  local message="${message_level}: ${1//${HOME}/\$\{HOME\}}"
+  message="${message//${USER}/\$\{USER\}}"
+  if [[ -n "${3}" ]]
+  then
+    message="Line = [${3}] ${message}"
+  fi
+
+  local -i index
+  for ((index = $((${#FUNCNAME[@]} - 1)); index >= 0; index--))
+  do
+    if [[ 0 -eq ${index} ]]
+    then
+      break
+    fi
+    case ${FUNCNAME[${index}]} in
+      log_info | log_warning | log_error | log_message ) break;;
+      *                                                ) stack+="::${BASH_LINENO[${index}]}->${FUNCNAME[${index}]}";;
+    esac
+  done
+  stack="[${stack}] "
+  echo "${stack}${message}"
+  return 0
+}
+
+# ${1} - error message
+# ${2} - line number (optional)
+function log_error
+{
+  log_message "${1}" ERROR "${2}"
+  return 0
+}
+
+# ${1} - warning message
+# ${2} - line number (optional)
+function log_warning
+{
+  log_message "${1}" WARNING "${2}"
+  return 0
+}
+
+# ${1} - info message
+# ${2} - line number (optional)
+function log_info
+{
+  log_message "${1}" INFO "${2}"
+  return 0
+}
+
+# ${1} - repository clone location
+# ${2} - BATS project remote repository url
+# ${3} - cloned repository name
+function clone_bats_repo
+{
+  local -i stat=0
+  pushd "${PWD}" > /dev/null
+  cd "${1}"
+  if [[ ! -d "${1}/${3}" ]]
+  then
+    git clone --depth 1 "${2}" "${3}" > /dev/null 2>&1
+    if [[ 0 -eq ${stat} ]]
+    then
+      log_info "Cloned BATS repository [${2}] into [${1}/${3}]."
+    else
+      log_error "Failed to clone BATS repository [${2}] into [${1}/${3}] due to error code [${stat}]." "${LINENO}"
+    fi
+  else
+    log_warning "The local BATS repository [${1}/${3}] already exists." "${LINENO}"
+    pushd "${PWD}" > /dev/null
+    cd "${3}"
+    local -r url="$(git config --get remote.origin.url 2> /dev/null)"
+    if [[ -n "${url}" ]]
+    then
+      if [[ "${2}" == "${url}" ]]
+      then
+        git pull > /dev/null 2>&1
+        stat=${?}
+        if [[ 0 -eq ${stat} ]]
+        then
+          log_info "Performed a successful 'git pull' in [${1}/${3}]."
+        else
+          log_error "Failed to perform a successful 'git pull' in [${1}/${3}] due to error code [${stat}]." "${LINENO}"
+        fi
+      else
+        log_error "The remote repository url [${url}] does equal the specified url [${2}]; will not perform a 'git pull'." "${LINENO}"
+        stat=1
+      fi
+    else
+      log_error "The remote repository url for [${1}/${3}] is empty." "${LINENO}"
+      stat=1
+    fi
+    popd > /dev/null
+  fi
+  popd > /dev/null
+  echo ''
+  return "${stat}"
+}
+
+# ${1} - repository clone location
+# ${2} - cloned repository name
+function delete_local_bats_repo
+{
+  local -i stat=0
+  if [[ -d "${1}/${2}" ]]
+  then
+    pushd "${PWD}" > /dev/null
+    cd "${1}"
+    rm -rf "${2}"
+    popd > /dev/null
+    log_info "Deleted local repository [${1}/${2}]."
+  else
+    log_warning "The local repository [${1}/${2}] does not exist." "${LINENO}"
+    stat=1
+  fi
+  echo ''
+  return "${stat}"
+}
+
+function clone_bats_repos
+{
+  local -i stat=0
+  local -i cum_stat=0
+  local key
+  for key in "${!BATS_FORK_SOURCE_URLS[@]}"
+  do
+    clone_bats_repo "${CLONES_DIR}" "${BATS_FORK_SOURCE_URLS[${key}]}" "${key}"
+    stat=${?}
+    if [[ 0 -ne ${stat} ]]
+    then
+      cum_stat=1
+    fi
+  done
+  return "${cum_stat}"
+}
+
+function delete_bats_repos
+{
+  local -i stat=0
+  local -i cum_stat=0
+  local key
+  for key in "${!BATS_FORK_SOURCE_URLS[@]}"
+  do
+    delete_local_bats_repo "${CLONES_DIR}" "${key}"
+    stat=${?}
+    if [[ 0 -ne ${stat} ]]
+    then
+      cum_stat=1
+    fi
+  done
+  return "${cum_stat}"
+}
+
+function get_newest_commits
+{
+  local -r pretty_format="%H"
+  pushd "${PWD}" > /dev/null
+  cd "${BATS_FORKS}"
+  local user=$(git config --get user.name 2> /dev/null)
+  user=${user//\./\\.}
+  popd > /dev/null
+
+  declare -Ag BATS_FORK_SOURCE_NEWEST_COMMIT
+  local key
+  for key in "${!BATS_FORK_SOURCE_URLS[@]}"
+  do
+    pushd "${PWD}" > /dev/null
+    cd "${CLONES_DIR}/${key}"
+    BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]="$(git log -n1 --pretty=format:"${pretty_format}" 2> /dev/null)"
+    popd > /dev/null
+  done
+
+  declare -Ag LOCAL_BATS_NEWEST_COMMIT
+  for key in "${!BATS_FORK_SOURCE_URLS[@]}"
+  do
+    if [[ "bats" == "${key}" ]]
+    then
+      continue
+    fi
+    pushd "${PWD}" > /dev/null
+    cd "${CLONES_DIR}/${key}"
+    LOCAL_BATS_NEWEST_COMMIT[${key}]="$(git log  --pretty=format:"${pretty_format}" 2> /dev/null | grep -v "^${user} " | head -1)"
+    popd > /dev/null
+  done
+}
+
+# ${1} - associative array
+# ${2} - label (optional)
+# NOTE: Not currently used; left in for possible future use.
+# shellcheck disable=SC2317
+function print_array
+{
+  local -r label=${2:-${1}}
+  local -n array=${1}
+  echo "${label} size = [${#array[@]}]"
+  local key=""
+  for key in "${!array[@]}"
+  do
+    echo "${label}[${key}] = ${array[${key}]}"
+  done | sort | column -s"=" -o"=" -t | sed 's/= /= [/;s/$/]/'
+}
+
+function compare_newest_commits
+{
+  local -i stat=0
+  local key
+  for key in "${!LOCAL_BATS_NEWEST_COMMIT[@]}"
+  do
+    if [[ "${LOCAL_BATS_NEWEST_COMMIT[${key}]}" != "${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}" ]]
+    then
+      log_warning "For local repository [${CLONES_DIR}/${key}] newest commit [${LOCAL_BATS_NEWEST_COMMIT[${key}]}] does not match remote repository newest commit [${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}]; remote repository url = [${!BATS_FORK_SOURCE_URLS[${key}]}]." "${LINENO}"
+      if [[ 0 -eq ${stat} ]]
+      then
+        stat=1
+      fi
+    fi
+  done
+  if [[ 0 -eq ${stat} ]]
+  then
+    log_info "All local BATS forks newest commits match remote BATS repository newest commits."
+  fi
+  return "${stat}"
+}
+
+function set_variables
+{
+################################################################################
+# The bats-core fork location. All BATS libraries are assumed to be submodules #
+# in ${BATS_FORKS}.                                                            #
+################################################################################
+  declare -rg BATS_FORKS=${HOME}/git/bats-core
+
+  declare -rg CLONES_DIR=/tmp
+
+  declare -Ag BATS_FORK_SOURCE_URLS
+  BATS_FORK_SOURCE_URLS[bats-core]="https://github.com/bats-core/bats-core"
+  BATS_FORK_SOURCE_URLS[bats-assert]="https://github.com/bats-core/bats-assert"
+  BATS_FORK_SOURCE_URLS[bats-file]="https://github.com/bats-core/bats-file"
+  BATS_FORK_SOURCE_URLS[bats-support]="https://github.com/bats-core/bats-support"
+  BATS_FORK_SOURCE_URLS[bats-mock]="https://github.com/jasonkarns/bats-mock"
+  BATS_FORK_SOURCE_URLS[bats-mock-grayhemp]="https://github.com/grayhemp/bats-mock"
+
+################################################################################
+# Original BATS project (now set as read-only).                                #
+################################################################################
+  BATS_FORK_SOURCE_URLS[bats]="https://github.com/sstephenson/bats"
+
+  return 0
+}
+
+function perform_commit_comparisons
+{
+  local -i stat=0
+  set_variables
+  stat=${?}
+  if [[ 0 -ne ${stat} ]]
+  then
+    return "${stat}"
+  fi
+
+  clone_bats_repos > /dev/null
+  stat=${?}
+  if [[ 0 -ne ${stat} ]]
+  then
+    return "${stat}"
+  fi
+
+  get_newest_commits
+  stat=${?}
+  if [[ 0 -ne ${stat} ]]
+  then
+    return "${stat}"
+  fi
+
+  delete_bats_repos > /dev/null
+  stat=${?}
+  if [[ 0 -ne ${stat} ]]
+  then
+    return "${stat}"
+  fi
+
+  compare_newest_commits
+  return "${stat}"
+}
+
+# NOTE: Not currently used; left in for possible future use.
+# shellcheck disable=SC2317
+function print_arrays
+{
+  print_array BATS_FORK_SOURCE_URLS
+  echo ''
+  print_array BATS_FORK_SOURCE_NEWEST_COMMIT
+  echo ''
+  print_array LOCAL_BATS_NEWEST_COMMIT
+  echo ''
+}
+
+################################################################################
+# "main"                                                                       #
+################################################################################
+perform_commit_comparisons
+exit "${?}"
+
