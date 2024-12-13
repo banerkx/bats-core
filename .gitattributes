@@ -32,7 +32,7 @@
 *.yml  text eol=cr
 
 ################################################################################
-# The following text files should should have Unix line endings.               #
+# The following text files should have Unix line endings.                      #
 ################################################################################
 .devcontainer/Dockerfile                                                        text eol=cr
 AUTHORS                                                                         text eol=cr
@@ -54,6 +54,8 @@ libexec/bats-core/bats-format-tap13                                             
 libexec/bats-core/bats-gather-tests                                             text eol=cr
 libexec/bats-core/bats-preprocess                                               text eol=cr
 man/Makefile                                                                    text eol=cr
+man/bats.1                                                                      text eol=cr
+man/bats.7                                                                      text eol=cr
 misc/http_urls                                                                  text eol=cr
 test/fixtures/bats/date                                                         text eol=cr
 test/fixtures/formatter/dummy-formatter                                         text eol=cr
@@ -73,10 +75,7 @@ test/fixtures/suite_setup_teardown/syntax_error/setup_suite_no_shellcheck       
 .editorconfig  text eol=cr
 .gitattributes text eol=cr
 .gitignore     text eol=cr
-.gitignore     text eol=cr
 .gitkeep       text eol=cr
-.gitkeep       text eol=cr
-.gitmodules    text eol=cr
 .gitmodules    text eol=cr
 
 ################################################################################
