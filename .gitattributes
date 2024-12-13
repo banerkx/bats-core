@@ -14,10 +14,26 @@
 * text=auto
 
 ################################################################################
+# Do not want git to change line endings for the following files.              #
+################################################################################
+test/fixtures/suite_setup_teardown/call_load/test_helper.bash                -text
+test/fixtures/suite_setup_teardown/pick_up_toplevel/folder1/setup_suite.bash -text
+test/fixtures/suite_setup_teardown/pick_up_toplevel/folder2/setup_suite.bash -text
+test/fixtures/bats/empty.bats                                                -text
+test/fixtures/parallel/setup_file/setup_file1.bats                           -text
+test/fixtures/parallel/setup_file/setup_file2.bats                           -text
+test/fixtures/parallel/setup_file/setup_file3.bats                           -text
+test/fixtures/parallel/suite/parallel2.bats                                  -text
+test/fixtures/parallel/suite/parallel3.bats                                  -text
+test/fixtures/parallel/suite/parallel4.bats                                  -text
+test/fixtures/suite/recursive_with_symlinks/test.bats                        -text
+
+################################################################################
 # The following text file extensions should have Unix line endings.            #
 ################################################################################
 *.bash text eol=cr
 *.bats text eol=cr
+*.dist text eol=cr
 *.gpg  text eol=cr
 *.json text eol=cr
 *.md   text eol=cr
@@ -32,7 +48,8 @@
 *.yml  text eol=cr
 
 ################################################################################
-# The following text files should have Unix line endings.                      #
+# The following text files, most of which which have no file extensions,       #
+# should have Unix line endings.                                               #
 ################################################################################
 .devcontainer/Dockerfile                                                        text eol=cr
 AUTHORS                                                                         text eol=cr
@@ -57,6 +74,8 @@ man/Makefile                                                                    
 man/bats.1                                                                      text eol=cr
 man/bats.7                                                                      text eol=cr
 misc/http_urls                                                                  text eol=cr
+scripts/check-fork-sources-commits                                              text eol=cr
+scripts/http_urls                                                               text eol=cr
 test/fixtures/bats/date                                                         text eol=cr
 test/fixtures/formatter/dummy-formatter                                         text eol=cr
 test/fixtures/formatter/echo-formatter                                          text eol=cr
