@@ -198,13 +198,7 @@ function delete_bats_repos
 
 function get_newest_commits
 {
-  local -r pretty_format="%H"
-  pushd "${PWD}" > /dev/null
-  cd "${BATS_FORKS}"
-  local user=$(git config --get user.name 2> /dev/null)
-  user=${user//\./\\.}
-  popd > /dev/null
-
+  local pretty_format="%H"
   declare -Ag BATS_FORK_SOURCE_NEWEST_COMMIT
   local key
   for key in "${!BATS_FORK_SOURCE_URLS[@]}"
@@ -215,6 +209,12 @@ function get_newest_commits
     popd > /dev/null
   done
 
+  pushd "${PWD}" > /dev/null
+  cd "${BATS_FORKS}"
+  local user=$(git config --get user.name 2> /dev/null)
+  user=${user//\./\\.}
+  popd > /dev/null
+  pretty_format="%H -%an"
   declare -Ag LOCAL_BATS_NEWEST_COMMIT
   for key in "${!BATS_FORK_SOURCE_URLS[@]}"
   do
@@ -224,7 +224,7 @@ function get_newest_commits
     fi
     pushd "${PWD}" > /dev/null
     cd "${CLONES_DIR}/${key}"
-    LOCAL_BATS_NEWEST_COMMIT[${key}]="$(git log  --pretty=format:"${pretty_format}" 2> /dev/null | grep -v "^${user} " | head -1)"
+    LOCAL_BATS_NEWEST_COMMIT[${key}]="$(git log --pretty=format:"${pretty_format}" 2> /dev/null | grep -v " -${user}$" | head -1 | sed 's/ -.*$//')"
     popd > /dev/null
   done
 }
