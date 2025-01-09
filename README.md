@@ -1,9 +1,9 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**README.md Table Of Contents**
+**bats-core/README.md Table Of Contents**
 
 - [Bats-core: Bash Automated Testing System](#bats-core-bash-automated-testing-system)
-  - [Table of contents](#table-of-contents)
+  - [Cloning](#cloning)
   - [Testing](#testing)
   - [Support](#support)
   - [Contributing](#contributing)
@@ -14,6 +14,8 @@
   - [Copyright](#copyright)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+**NOTE** The documentation has moved to <https://bats-core.readthedocs.io>
 
 [![Latest release](https://img.shields.io/github/release/bats-core/bats-core.svg)](https://github.com/bats-core/bats-core/releases/latest)
 [![npm package](https://img.shields.io/npm/v/bats.svg)](https://www.npmjs.com/package/bats)
@@ -61,23 +63,13 @@ Test cases consist of standard shell commands. Bats makes use of Bash's
 test case exits with a `0` status code (success), the test passes. In this way,
 each line is an assertion of truth.
 
-## Table of contents
+## Cloning
 
-**NOTE** The documentation has moved to <https://bats-core.readthedocs.io>
+To clone this repository and all of its sub-modules, use:
 
-<!-- toc -->
-
-- [Testing](#testing)
-- [Support](#support)
-- [Contributing](#contributing)
-- [Contact](#contact)
-- [Version history](#version-history)
-- [Background](#background)
-  - [What's the plan and why?](#whats-the-plan-and-why)
-  - [Why was this fork created?](#why-was-this-fork-created)
-- [Copyright](#copyright)
-
-<!-- tocstop -->
+```bash
+git chlone --recurse-submodule http://github.com/banerkx/bats-core.git
+```
 
 ## Testing
 
