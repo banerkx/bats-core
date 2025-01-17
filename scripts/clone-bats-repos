@@ -1,0 +1,278 @@
+#!/bin/bash
+
+declare -r SCRIPT=${0##*/}
+
+# ${1} - message
+# ${2} - message level
+# ${3} - line number (optional)
+function log_message
+{
+  if [[ ! -v ESCAPE ]]
+  then
+    declare -rg ESCAPE=""
+  fi
+
+  if [[ ! -v STOP_COLOR ]]
+  then
+    local -r STOP_COLOR="${ESCAPE}[0m"
+  fi
+
+  local message_level=${2}
+  if [[ -t 1 ]]
+  then
+    case ${2} in
+      ERROR   ) if [[ ! -v RED ]]
+                then
+                  declare -rg RED="${ESCAPE}[0;31m"
+                fi
+                message_level=${RED}${message_level}${STOP_COLOR};;
+      WARNING ) if [[ ! -v YELLOW ]]
+                then
+                  declare -rg YELLOW="${ESCAPE}[1;33m"
+                fi
+                message_level=${YELLOW}${message_level}${STOP_COLOR};;
+      INFO    ) if [[ ! -v GREEN ]]
+                then
+                  declare -rg GREEN="${ESCAPE}[0;32m"
+                fi
+                message_level=${GREEN}${message_level}${STOP_COLOR};;
+      *       ) :;;
+    esac
+  fi
+
+################################################################################
+# NOTE: Want to replace the value of the HOME environment variable with the    #
+#       literal string '${HOME}' in the message.                               #
+################################################################################
+  local stack="${SCRIPT}"
+  local message="${message_level}: ${1//${HOME}/\$\{HOME\}}"
+  message="${message//${USER}/\$\{USER\}}"
+  if [[ -n "${3}" ]]
+  then
+    message="Line = [${3}] ${message}"
+  fi
+
+  local -i index
+  for ((index = $((${#FUNCNAME[@]} - 1)); index >= 0; index--))
+  do
+    if [[ 0 -eq ${index} ]]
+    then
+      break
+    fi
+    case ${FUNCNAME[${index}]} in
+      log_info | log_warning | log_error | log_message ) break;;
+      *                                                ) stack+="::${BASH_LINENO[${index}]}->${FUNCNAME[${index}]}";;
+    esac
+  done
+  stack="[${stack}] "
+  echo "${stack}${message}"
+  return 0
+}
+
+# ${1} - error message
+# ${2} - line number (optional)
+function log_error
+{
+  log_message "${1}" ERROR "${2}"
+  return 0
+}
+
+# ${1} - warning message
+# ${2} - line number (optional)
+function log_warning
+{
+  log_message "${1}" WARNING "${2}"
+  return 0
+}
+
+# ${1} - info message
+# ${2} - line number (optional)
+function log_info
+{
+  log_message "${1}" INFO "${2}"
+  return 0
+}
+
+################################################################################
+# PURPOSE:                                                                     #
+# Print script usage information.                                              #
+#                                                                              #
+# INPUT VARIABLES:                                                             #
+# ${1} - the exit code                                                         #
+#                                                                              #
+# OUTPUT:                                                                      #
+# Usage information to stdout will be printed and then this                    #
+# script will exit with a status of ${1}.                                      #
+################################################################################
+function usage
+{
+  local bats_libs="$(echo "${!BATS_LIB_REPOS[@]}" | tr ' ' '\n' | sort | tr '\n' ' ' | sed 's/ $//')"
+  cat << EOF
+  Clones the bats-core repository and the bats-core libraries
+    {${bats_libs// /, }}
+  into a specified directory.
+  Usage: ${SCRIPT} -d,--dir [directory] -h,--help
+  -d,--dir  Specifies the directory into which the bats-core repositories will
+            be cloned.  If the direcotry does not exist, it will be created.
+            Required.
+  -h,--help Prints this usage information and exits. Takes precedence over all
+            other options. Optional.
+EOF
+  exit "${1}"
+}
+
+################################################################################
+# PURPOSE:                                                                     #
+# Parses this script's command line options.                                   #
+#                                                                              #
+# ARGUMENTS:                                                                   #
+# ${@} - this script's command line                                            #
+################################################################################
+function parse_command_line_options
+{
+################################################################################
+# Setting the long versions of the command line options.                       #
+# NOTE: An option followed by a ':' means the option takes a required          #
+#       argument.                                                              #
+#       An option followed by a "::" means the option takes an optional        #
+#       argument (for such an argument use "shift 2" instead of "shift 1" in   #
+#       the getopt while loop).                                                #
+################################################################################
+  local long_options="dir:,help"
+
+################################################################################
+# To get the short options that correspond to the long options, we basically   #
+# just get the first letter of each long option.                               #
+#                                                                              #
+# NOTE: If more than one long option begins with the same letter, then you     #
+#       must:                                                                  #
+#         - only assign one of these long options to long_options              #
+#         - extract the short options from long_options as usual               #
+#         - manually assign the remaining long options to long_options and     #
+#           update short_options as appropriate                                #
+################################################################################
+  local short_options=$(echo "${long_options}" | tr ',' '\n' | sed 's/\(^.\)\(.*[^:]\)\(:\{0,2\}$\)/\1\3/' | tr -d '\n')
+
+################################################################################
+# --longoptions → specifies long options                                       #
+# --alternative → allow long options to start with a single dash ('-') instead #
+#                 of restricting long options to only "--"                     #
+# --name        → program name to use for error messages                       #
+# --options     → specifies short options                                      #
+# --quiet       → disable error reporting (we will perform our own error       #
+#                 reporting)                                                   #
+# :             → exactly one required argument for the option                 #
+# ::            → exactly one optional argument for the option                 #
+#                 NOTE: Must use like: -o23 OR --option=23                     #
+#                                                                              #
+# NOTE: Options present on the command line but not specified in opts will not #
+#       end up in opts.                                                        #
+################################################################################
+  opts=$(getopt --alternative --name "${SCRIPT}" --options "${short_options}" --longoptions "${long_options}" -- "${@}")
+  if [[ ${?} != 0 ]]
+  then
+    log_error "Could not parse the command line option(s) [${*}]. Exiting." "${LINENO}"
+    usage 1
+  fi
+
+################################################################################
+# Preserves white space in opts.                                               #
+################################################################################
+  eval set -- "${opts}"
+
+  while [[ true ]]
+  do
+    case ${1} in
+      -d | --dir  ) declare -rg REPOS_DIR="${2}"
+                    shift 2;;
+
+      -h | --help ) usage 0;;
+
+################################################################################
+# End of opts marker is "--".                                                  #
+################################################################################
+      --          ) shift 1
+                    break;;
+
+      *           ) log_error "Unknown internal [getopt] error. Exiting." "${LINENO}"
+                    usage 1;;
+    esac
+  done
+
+  if [[ ! -v REPOS_DIR ]]
+  then
+    log_error "Must specify a directory for the bats-core repository and libraries. Exiting." "${LINENO}"
+    exit 1
+  fi
+}
+
+function clone_bats_core_repos
+{
+  local -i stat=0
+  if [[ ! -d "${REPOS_DIR}" ]]
+  then
+    mkdir -p "${REPOS_DIR}"
+    stat=${?}
+    if [[ 0 -ne ${stat} ]]
+    then
+      log_error "Failed to create directory [${REPOS_DIR}] due to error code [${stat}]. Exiting." "${LINENO}"
+      exit 1
+    fi
+  fi
+
+  cd "${REPOS_DIR}"
+  if [[ -d "${BATS_CORE}" ]]
+  then
+    log_error "The bats-core repository [${REPOS_DIR}/${BATS_CORE}] already exists. Exiting."
+    exit 1
+  fi
+
+  git clone "${BATS_CORE_URL}" "${BATS_CORE}"
+  stat=${?}
+  if [[ 0 -eq ${stat} ]]
+  then
+    log_info "Cloned [${BATS_CORE_URL}] into [${REPOS_DIR}/${BATS_CORE}]." "${LINENO}"
+  else
+    log_error "Failed to clone [${BATS_CORE_URL}] into [${REPOS_DIR}/${BATS_CORE}] due to error code [${stat}]. Exiting." "${LINENO}"
+    exit 1
+  fi
+
+  cd "${BATS_CORE}"
+  local key
+  local module_path
+  for key in "${!BATS_LIB_REPOS[@]}"
+  do
+    module_path=${REPOS_DIR}/${BATS_CORE}/${key}
+    git submodule add "${BATS_LIB_REPOS[${key}]}" "${key}"
+    stat=${?}
+    if [[ 0 -eq ${stat} ]]
+    then
+      log_info "Cloned [${BATS_LIB_REPOS[${key}]}] into [${module_path}]." "${LINENO}"
+    else
+      log_error "Failed to clone [${BATS_LIB_REPOS[${key}]}] into [${module_path}] due to error code [${stat}]. Exiting." "${LINENO}"
+      exit 1
+    fi
+  done
+}
+
+function set_variables
+{
+  declare -rg BATS_CORE_URL="https://github.com/bats-core/bats-core"
+  local bats_core="$(basename "${BATS_CORE_URL}")"
+  declare -rg BATS_CORE=${bats_core%.git}
+
+  declare -Ag BATS_LIB_REPOS
+  BATS_LIB_REPOS[bats-assert]="https://github.com/bats-core/bats-assert"
+  BATS_LIB_REPOS[bats-file]="https://github.com/bats-core/bats-file"
+  BATS_LIB_REPOS[bats-mock-grayhemp]="https://github.com/grayhemp/bats-mock"
+  BATS_LIB_REPOS[bats-mock]="https://github.com/jasonkarns/bats-mock"
+  BATS_LIB_REPOS[bats-support]="https://github.com/bats-core/bats-support"
+}
+
+################################################################################
+# "main"                                                                       #
+################################################################################
+set_variables
+parse_command_line_options "${@}"
+clone_bats_core_repos
+
