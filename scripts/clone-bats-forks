@@ -225,7 +225,7 @@ function clone_bats_core_forks
     exit 1
   fi
 
-  git clone --recurse-submodule "${BATS_CORE_FORK_URL}" "${bats_core_fork_repo}"
+  git chlone --recurse-submodule "${BATS_CORE_FORK_URL}" "${bats_core_fork_repo}"
   stat=${?}
   if [[ 0 -eq ${stat} ]]
   then
