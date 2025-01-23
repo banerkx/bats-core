@@ -1,19 +1,33 @@
-Original bats: https://github.com/sstephenson/bats
-
-bats-core https://github.com/bats-core/bats-core
-
-https://github.com/bats-core/bats-assert
-https://github.com/bats-core/bats-file
-https://github.com/bats-core/bats-support
-https://github.com/jasonkarns/bats-mock
-https://github.com/grayhemp/bats-mock bats-mock-grayhemp
-
-FORKS:
-http://github.com/banerkx/bats-core.git
-http://github.com/banerkx/bats-file.git
-http://github.com/banerkx/bats-support.git
-http://github.com/banerkx/bats-mock.git
-http://github.com/banerkx/bats-mock-grayhemp.git
-
-git chlone --recurse-submodule http://github.com/banerkx/bats-core.git
-
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| Description                    | url                                                       | git clone command                                                      |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| original bats                  | https://github.com/sstephenson/bats                       | git chlone https://github.com/sstephenson/bats                         |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| original bats fork (bats-core) | https://github.com/bats-core/bats-core                    | git chlone https://github.com/bats-core/bats-core                      |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-assert                    | https://github.com/bats-core/bats-assert                  | git chlone https://github.com/bats-core/bats-assert                    |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-file                      | https://github.com/bats-core/bats-file                    | git chlone https://github.com/bats-core/bats-file                      |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-support                   | https://github.com/bats-core/bats-support                 | git chlone https://github.com/bats-core/bats-support                   |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-mock                      | https://github.com/jasonkarns/bats-mock                   | git chlone https://github.com/jasonkarns/bats-mock                     |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-mock grayhemp             | https://github.com/grayhemp/bats-mock bats-mock-grayhemp  | git chlone https://github.com/grayhemp/bats-mock bats-mock-grayhemp    |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-core fork                 | http://github.com/banerkx/bats-core.git                   | git chlone --recurse-submodule http://github.com/banerkx/bats-core.git |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-assert fork               | http://github.com/banerkx/bats-assert.git                 | git chlone http://github.com/banerkx/bats-assert.git                   |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-file fork                 | http://github.com/banerkx/bats-file.git                   | git chlone http://github.com/banerkx/bats-file.git                     |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-support fork              | http://github.com/banerkx/bats-support.git                | git chlone http://github.com/banerkx/bats-support.git                  |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-mock fork                 | http://github.com/banerkx/bats-mock.git                   | git chlone http://github.com/banerkx/bats-mock.git                     |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-mock grayhemp fork        | http://github.com/banerkx/bats-mock-grayhemp.git          | git chlone http://github.com/banerkx/bats-mock-grayhemp.git            |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
