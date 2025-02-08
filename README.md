@@ -12,7 +12,6 @@
   - [Background](#background)
     - [Why was this fork created?](#why-was-this-fork-created)
   - [Copyright](#copyright)
-
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 **NOTE** The documentation has moved to <https://bats-core.readthedocs.io>
