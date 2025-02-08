@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**CODE_OF_CONDUCT.md Table Of Contents**
+**bats-core/docs/CODE_OF_CONDUCT.md Table Of Contents**
 
 - [Contributor Covenant Code of Conduct](#contributor-covenant-code-of-conduct)
   - [Our Pledge](#our-pledge)

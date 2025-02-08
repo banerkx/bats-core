@@ -1,9 +1,10 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**CHANGELOG.md Table Of Contents**
+**bats-core/docs/CHANGELOG.md Table Of Contents**
 
 - [Changelog](#changelog)
   - [[Unreleased]](#unreleased)
+  - [\[1.11.1\] - 2024-11-29](#%5C1111%5C---2024-11-29)
     - [Added](#added)
       - [Documentation](#documentation)
     - [Fixed](#fixed)
@@ -95,7 +96,7 @@ The format is based on [Keep a Changelog][kac] and this project adheres to
 
 ## [Unreleased]
 
-## [1.11.1] - 2024-11-29
+## \[1.11.1\] - 2024-11-29
 
 ### Added
 
@@ -113,13 +114,13 @@ The format is based on [Keep a Changelog][kac] and this project adheres to
 
 ### Changed
 
-* update Docker image with the latest `bats-detik` version 1.3.2 (#1017)
-* cleanup: remove unused `$BATS_FILTER` (#907)
+- update Docker image with the latest `bats-detik` version 1.3.2 (#1017)
+- cleanup: remove unused `$BATS_FILTER` (#907)
 
 #### Documentation
 
-* fix hard-coded link to readthedocs (#901)
-* fix tutorial code for multiline test suite (#1011)
+- fix hard-coded link to readthedocs (#901)
+- fix tutorial code for multiline test suite (#1011)
 
 ## \[1.11.0\] - 2024-03-24
 

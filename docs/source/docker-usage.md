@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**docker-usage.md Table Of Contents**
+**bats-core/docs/source/docker-usage.md Table Of Contents**
 
 - [Docker Usage Guide](#docker-usage-guide)
   - [Basic Usage](#basic-usage)

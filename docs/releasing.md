@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**releasing.md Table Of Contents**
+**bats-core/docs/releasing.md Table Of Contents**
 
 - [Releasing a new Bats version](#releasing-a-new-bats-version)
   - [Update docs/CHANGELOG.md](#update-docschangelogmd)

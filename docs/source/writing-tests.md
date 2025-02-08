@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**writing-tests.md Table Of Contents**
+**bats-core/docs/source/writing-tests.md Table Of Contents**
 
 - [Writing tests](#writing-tests)
   - [Tagging tests](#tagging-tests)

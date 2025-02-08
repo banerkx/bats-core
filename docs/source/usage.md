@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**usage.md Table Of Contents**
+**bats-core/docs/source/usage.md Table Of Contents**
 
 - [Usage](#usage)
   - [Parallel Execution](#parallel-execution)
