@@ -38,7 +38,7 @@ with the message `Bats <VERSION>`, where `<VERSION>` is the new version number.
 Create a new signed, annotated tag with:
 
 ```bash
-$ git tag -a -s <VERSION>
+`$` git tag -a -s <VERSION>
 ```
 
 Include the `docs/CHANGELOG.md` notes corresponding to the new version as the
@@ -60,7 +60,7 @@ Added:
 Push the new version commit and tag to GitHub via the following:
 
 ```bash
-$ git push --follow-tags
+`$` git push --follow-tags
 ```
 
 Then visit https://github.com/bats-core/bats-core/releases, and:

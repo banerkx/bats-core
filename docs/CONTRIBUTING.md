@@ -3,7 +3,7 @@
 **bats-core/docs/CONTRIBUTING.md Table Of Contents**
 
 - [Contributing Guidelines](#contributing-guidelines)
-  - [Welcome!](#welcome)
+  - [Welcome`!`](#welcome)
   - [Table of contents](#table-of-contents)
   - [Quick links](#quick-links)
   - [Code of conduct](#code-of-conduct)
@@ -24,7 +24,7 @@
 
 # Contributing Guidelines
 
-## Welcome!
+## Welcome`!`
 
 Thank you for considering contributing to this project's
 development and/or documentation. Just a reminder: if you're new to this project
@@ -132,23 +132,30 @@ Use `snake_case` for all identifiers.
 ### Variable and parameter declarations
 
 - Declare all variables inside functions using `local`.
+
 - Declare temporary file-level variables using `declare`. Use `unset` to remove
   them when finished.
+
 - Don't use `local -r`, as a readonly local variable in one scope can cause a
   conflict when it calls a function that declares a `local` variable of the same
   name.
+
 - Don't use type flags with `declare` or `local`. Assignments to integer
   variables in particular may behave differently, and it has no effect on array
   variables.
+
 - For most functions, the first lines should use `local` declarations to
   assign the original positional parameters to more meaningful names, e.g.:
+
   ```bash
   format_summary() {
     local cmd_name="$1"
     local summary="$2"
     local longest_name_len="$3"
   ```
+
   For very short functions, this _may not_ be necessary, e.g.:
+
   ```bash
   has_spaces() {
     [[ "$1" != "${1//[[:space:]]/}" ]]

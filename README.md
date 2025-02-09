@@ -10,7 +10,7 @@
   - [Contact](#contact)
   - [Version history](#version-history)
   - [Background](#background)
-    - [Why was this fork created?](#why-was-this-fork-created)
+    - [Why was this fork created`?`](#why-was-this-fork-created)
   - [Copyright](#copyright)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -111,7 +111,7 @@ See `docs/CHANGELOG.md`.
 
 <!-- markdownlint-disable MD026 -->
 
-### Why was this fork created?
+### Why was this fork created`?`
 
 <!-- markdownlint-enable MD026 -->
 
