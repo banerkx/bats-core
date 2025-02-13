@@ -128,7 +128,7 @@ function clone_bats_repo
           log_error "Failed to perform a successful 'git pull' in [${1}/${3}] due to error code [${stat}]." "${LINENO}"
         fi
       else
-        log_error "The remote repository url [${url}] does equal the specified url [${2}]; will not perform a 'git pull'." "${LINENO}"
+        log_error "The remote repository url [${url}] does not equal the specified url [${2}]; will not perform a 'git pull'." "${LINENO}"
         stat=1
       fi
     else
@@ -253,7 +253,7 @@ function compare_newest_commits
   do
     if [[ "${LOCAL_BATS_NEWEST_COMMIT[${key}]}" != "${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}" ]]
     then
-      log_warning "For local repository [${CLONES_DIR}/${key}] newest commit [${LOCAL_BATS_NEWEST_COMMIT[${key}]}] does not match remote repository newest commit [${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}]; remote repository url = [${!BATS_FORK_SOURCE_URLS[${key}]}]." "${LINENO}"
+      log_warning "For local repository [${CLONES_DIR}/${key}] newest commit [${LOCAL_BATS_NEWEST_COMMIT[${key}]}] does not match original repository newest commit [${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}]; original repository url = [${!BATS_FORK_SOURCE_URLS[${key}]}]." "${LINENO}"
       if [[ 0 -eq ${stat} ]]
       then
         stat=1
@@ -262,7 +262,7 @@ function compare_newest_commits
   done
   if [[ 0 -eq ${stat} ]]
   then
-    log_info "All local BATS forks newest commits match remote BATS repository newest commits."
+    log_info "All local BATS forks newest commits match original BATS repository newest commits."
   fi
   return "${stat}"
 }
