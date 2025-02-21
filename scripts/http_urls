@@ -1,33 +1,33 @@
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
 | Description                    | url                                                       | git clone command                                                      |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| original BATS                  | https://github.com/sstephenson/bats                       | git chlone https://github.com/sstephenson/bats                         |
+| original BATS                  | https://github.com/sstephenson/bats                       | git clone https://github.com/sstephenson/bats                          |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| original BATS fork (bats-core) | https://github.com/bats-core/bats-core                    | git chlone https://github.com/bats-core/bats-core                      |
+| original BATS fork (bats-core) | https://github.com/bats-core/bats-core                    | git clone https://github.com/bats-core/bats-core                       |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-assert                    | https://github.com/bats-core/bats-assert                  | git chlone https://github.com/bats-core/bats-assert                    |
+| bats-assert                    | https://github.com/bats-core/bats-assert                  | git clone https://github.com/bats-core/bats-assert                     |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-file                      | https://github.com/bats-core/bats-file                    | git chlone https://github.com/bats-core/bats-file                      |
+| bats-file                      | https://github.com/bats-core/bats-file                    | git clone https://github.com/bats-core/bats-file                       |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-support                   | https://github.com/bats-core/bats-support                 | git chlone https://github.com/bats-core/bats-support                   |
+| bats-support                   | https://github.com/bats-core/bats-support                 | git clone https://github.com/bats-core/bats-support                    |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-mock                      | https://github.com/jasonkarns/bats-mock                   | git chlone https://github.com/jasonkarns/bats-mock                     |
+| bats-mock                      | https://github.com/jasonkarns/bats-mock                   | git clone https://github.com/jasonkarns/bats-mock                      |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-mock grayhemp             | https://github.com/grayhemp/bats-mock bats-mock-grayhemp  | git chlone https://github.com/grayhemp/bats-mock bats-mock-grayhemp    |
-+--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-+--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-core fork                 | http://github.com/banerkx/bats-core.git                   | git chlone --recurse-submodule http://github.com/banerkx/bats-core.git |
+| bats-mock grayhemp             | https://github.com/grayhemp/bats-mock bats-mock-grayhemp  | git clone https://github.com/grayhemp/bats-mock bats-mock-grayhemp     |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-assert fork               | http://github.com/banerkx/bats-assert.git                 | git chlone http://github.com/banerkx/bats-assert.git                   |
+| bats-core fork                 | http://github.com/banerkx/bats-core.git                   | git clone --recurse-submodule http://github.com/banerkx/bats-core.git  |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-file fork                 | http://github.com/banerkx/bats-file.git                   | git chlone http://github.com/banerkx/bats-file.git                     |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-support fork              | http://github.com/banerkx/bats-support.git                | git chlone http://github.com/banerkx/bats-support.git                  |
+| bats-assert fork               | http://github.com/banerkx/bats-assert.git                 | git clone http://github.com/banerkx/bats-assert.git                    |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-mock fork                 | http://github.com/banerkx/bats-mock.git                   | git chlone http://github.com/banerkx/bats-mock.git                     |
+| bats-file fork                 | http://github.com/banerkx/bats-file.git                   | git clone http://github.com/banerkx/bats-file.git                      |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
-| bats-mock grayhemp fork        | http://github.com/banerkx/bats-mock-grayhemp.git          | git chlone http://github.com/banerkx/bats-mock-grayhemp.git            |
+| bats-support fork              | http://github.com/banerkx/bats-support.git                | git clone http://github.com/banerkx/bats-support.git                   |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-mock fork                 | http://github.com/banerkx/bats-mock.git                   | git clone http://github.com/banerkx/bats-mock.git                      |
++--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
+| bats-mock grayhemp fork        | http://github.com/banerkx/bats-mock-grayhemp.git          | git clone http://github.com/banerkx/bats-mock-grayhemp.git             |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
