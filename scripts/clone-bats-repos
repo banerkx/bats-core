@@ -113,7 +113,7 @@ function usage
   into a specified directory.
   Usage: ${SCRIPT} -d,--dir [directory] -h,--help
   -d,--dir  Specifies the directory into which the bats-core repositories will
-            be cloned.  If the directory does not exist, it will be created.
+            be cloned. If the directory does not exist, it will be created.
             Required.
   -h,--help Prints this usage information and exits. Takes precedence over all
             other options. Optional.

@@ -225,11 +225,12 @@ function clone_bats_core_forks
     exit 1
   fi
 
-  git chlone --recurse-submodule "${BATS_CORE_FORK_URL}" "${bats_core_fork_repo}"
+  git clone --recurse-submodule "${BATS_CORE_FORK_URL}" "${bats_core_fork_repo}"
   stat=${?}
   if [[ 0 -eq ${stat} ]]
   then
     log_info "Cloned [${BATS_CORE_FORK_URL}] fork into [${bats_core_fork_repo}]." "${LINENO}"
+    rm "${bats_core_fork_repo}"/.git/hooks/*.sample
     echo ''
   else
     log_error "Failed to clone [${BATS_CORE_FORK_URL}] fork into [${bats_core_fork_repo}] due to error code [${stat}]. Exiting." "${LINENO}"
