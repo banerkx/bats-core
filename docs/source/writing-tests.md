@@ -17,6 +17,7 @@
   - [`bats_load_library`: Load system wide libraries](#bats_load_library-load-system-wide-libraries)
   - [`skip`: Easily skip tests](#skip-easily-skip-tests)
   - [`setup` and `teardown`: Pre- and post-test hooks](#setup-and-teardown-pre--and-post-test-hooks)
+  - [`bats::on_failure` hook](#batson_failure-hook)
   - [`bats_require_minimum_version <Bats version number>`](#bats_require_minimum_version-bats-version-number)
   - [Code outside of test cases](#code-outside-of-test-cases)
   - [File descriptor 3 (read this if Bats hangs)](#file-descriptor-3-read-this-if-bats-hangs)
@@ -553,7 +554,7 @@ teardown() {
 
 ## `bats::on_failure` hook
 
-While `teardown` unconditionally handles cleanup after the test ends, the `bats::on_failure` hook gets called 
+While `teardown` unconditionally handles cleanup after the test ends, the `bats::on_failure` hook gets called
 only when a test is aborted due to an error. `bats::on_failure` will be called before `teardown`.
 
 You can define `bats::on_failure` anywhere in your test files, even inside the test functions, to change its behavior midtest:
