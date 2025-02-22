@@ -96,7 +96,20 @@ The format is based on [Keep a Changelog][kac] and this project adheres to
 
 ## [Unreleased]
 
-## \[1.11.1\] - 2024-11-29
+### Added 
+
+* `bats::on_failure` hook that gets called when a test or `setup*` function fails (#1031)
+
+### Fixed
+
+* increase compatibility with Solaris (#1043)
+* fix `noclobber` breaking `bats-gather-tests` (#1042)
+
+### Documentation
+
+* Fix hyperlink to external Bash resource (#1033)
+
+## [1.11.1] - 2024-11-29
 
 ### Added
 

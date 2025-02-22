@@ -359,10 +359,12 @@ To allow to use `load` in conditions `bats_load_safe` has been added.
 loaded instead of exiting Bats.
 Aside from that `bats_load_safe` acts exactly like `load`.
 
-As pointed out by @iatrou in https://www.tldp.org/LDP/abs/html/declareref.html,
+__Note:__ : As pointed out by @iatrou in the [Advanced Bash Scripting Guide
+(section 9.2)](https://www.tldp.org/LDP/abs/html/declareref.html),
 using the `declare` builtin restricts scope of a variable. Thus, since actual
-`source`-ing is performed in context of the `load` function, `declare`d symbols
-will _not_ be made available to callers of `load`.
+`source`-ing is performed in context of the `load` function, symbols
+defined using `declare` will _not_ be made available to callers of `load` (unless `declare -g`
+is used).
 
 ### `load` argument resolution
 
@@ -548,6 +550,35 @@ teardown() {
 
 </details>
 <!-- markdownlint-enable MD033 -->
+
+## `bats::on_failure` hook
+
+While `teardown` unconditionally handles cleanup after the test ends, the `bats::on_failure` hook gets called 
+only when a test is aborted due to an error. `bats::on_failure` will be called before `teardown`.
+
+You can define `bats::on_failure` anywhere in your test files, even inside the test functions, to change its behavior midtest:
+
+```bash
+@test "my awesome test" {
+  simple_test_setup
+
+  bats::on_failure() {
+    handle_simple_error_case
+  }
+
+  complex_test_setup
+
+  bats::on_failure() {
+    print_debug_information_only_on_error
+  }
+
+  do_actual_tests
+
+  check_results
+}
+```
+
+The `bats::on_failure` hook is available in `setup_suite`/`setup_file`/`setup`, their respective teardown functions, and test functions.
 
 ## `bats_require_minimum_version <Bats version number>`
 
