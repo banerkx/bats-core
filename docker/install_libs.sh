@@ -13,7 +13,7 @@ USAGE="Please provide the bats libe name and version \nFor example: install_libs
 
 trap 'test -d "${TMPDIR}" && rm -fr "${TMPDIR}"' EXIT ERR SIGINT SIGTERM
 
-[[ $# -ne 2 ]] && { _log FATAL "$USAGE"; exit 1; }
+[[ $# -ne 2 ]] && { _log FATAL "${USAGE}"; exit 1; }
 
 _log() {
     printf "$(date "+%Y-%m-%d %H:%M:%S") - %s - %s\n" "${1}" "${2}"
@@ -29,15 +29,15 @@ create_temp_dirs() {
 }
 
 download_extract_source() {
-    wget -qO- ${BASEURL}/bats-"${1}"/archive/refs/tags/v"${2}".tar.gz | tar xz -C "${TMPDIR}/${1}" --strip-components 1
+    wget -qO- "${BASEURL}"/bats-"${1}"/archive/refs/tags/v"${2}".tar.gz | tar xz -C "${TMPDIR}/${1}" --strip-components 1
 }
 
 install_files() {
     if [[ ${LIBNAME} != "detik" ]]; then
         install -Dm755 "${TMPDIR}/${1}/load.bash" "${DESTDIR}/bats-${1}/load.bash"
-        for fn in "${TMPDIR}/${1}/src/"*.bash; do install -Dm755 "$fn" "${DESTDIR}/bats-${1}/src/$(basename "$fn")"; done
+        for fn in "${TMPDIR}/${1}/src/"*.bash; do install -Dm755 "${fn}" "${DESTDIR}/bats-${1}/src/$(basename "${fn}")"; done
     else
-        for fn in "${TMPDIR}/${1}/lib/"*.bash; do install -Dm755 "$fn" "${DESTDIR}/bats-${1}/$(basename "$fn")"; done
+        for fn in "${TMPDIR}/${1}/lib/"*.bash; do install -Dm755 "${fn}" "${DESTDIR}/bats-${1}/$(basename "${fn}")"; done
     fi
 }
 

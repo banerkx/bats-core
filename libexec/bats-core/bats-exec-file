@@ -54,24 +54,24 @@ export BATS_TEST_FILE_NUMBER="$1"
 filename="$2"
 TESTS_FILE="$3"
 
-if [[ ! -f "$filename" ]]; then
-  printf 'Testfile "%s" not found\n' "$filename" >&2
+if [[ ! -f "${filename}" ]]; then
+  printf 'Testfile "%s" not found\n' "${filename}" >&2
   exit 1
 fi
 
-export BATS_TEST_FILENAME="$filename"
+export BATS_TEST_FILENAME="${filename}"
 
 # shellcheck source=lib/bats-core/preprocessing.bash
 # shellcheck disable=SC2153
-source "$BATS_ROOT/$BATS_LIBDIR/bats-core/preprocessing.bash"
+source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/preprocessing.bash"
 
 bats_run_setup_file() {
   # shellcheck source=lib/bats-core/tracing.bash
   # shellcheck disable=SC2153
-  source "$BATS_ROOT/$BATS_LIBDIR/bats-core/tracing.bash"
+  source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/tracing.bash"
   # shellcheck source=lib/bats-core/test_functions.bash
   # shellcheck disable=SC2153
-  source "$BATS_ROOT/$BATS_LIBDIR/bats-core/test_functions.bash"
+  source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/test_functions.bash"
 
   _bats_test_functions_setup -1 # invalid TEST_NUMBER, as this is not a test
 
@@ -89,19 +89,19 @@ bats_run_setup_file() {
   # shellcheck disable=2034
   BATS_ERROR_STATUS= # used in tracing.bash
   
-  touch "$BATS_OUT"
+  touch "${BATS_OUT}"
   bats_setup_tracing
   trap 'bats_file_teardown_trap' EXIT
 
   local status=0
   # get the setup_file/teardown_file functions for this file (if it has them)
   # shellcheck disable=SC1090
-  source "$BATS_TEST_SOURCE"
+  source "${BATS_TEST_SOURCE}"
 
   BATS_SOURCE_FILE_COMPLETED=1
 
   bats_set_stacktrace_limit
-  setup_file >>"$BATS_OUT" 2>&1
+  setup_file >>"${BATS_OUT}" 2>&1
 
   BATS_SETUP_FILE_COMPLETED=1
 }
@@ -114,14 +114,14 @@ bats_run_teardown_file() {
   bats_set_stacktrace_limit
 
   # rely on bats_error_trap to catch failures
-  teardown_file >>"$BATS_OUT" 2>&1 || bats_teardown_file_status=$?
+  teardown_file >>"${BATS_OUT}" 2>&1 || bats_teardown_file_status=$?
 
   if ((bats_teardown_file_status == 0)); then
     BATS_TEARDOWN_FILE_COMPLETED=1
   elif [[ -n "${BATS_SETUP_FILE_COMPLETED:-}" ]]; then
     BATS_DEBUG_LAST_STACK_TRACE_IS_VALID=1
-    BATS_ERROR_STATUS=$bats_teardown_file_status
-    return $BATS_ERROR_STATUS
+    BATS_ERROR_STATUS=${bats_teardown_file_status}
+    return "${BATS_ERROR_STATUS}"
   fi
 }
 
@@ -132,13 +132,13 @@ bats_file_teardown_trap() {
 }
 
 # shellcheck source=lib/bats-core/common.bash
-source "$BATS_ROOT/$BATS_LIBDIR/bats-core/common.bash"
+source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/common.bash"
 
 # shellcheck disable=SC2317
 bats_file_exit_trap() {
   local -r last_return_code=$?
   if [[ ${1:-} != in-teardown_trap ]]; then
-    BATS_ERROR_STATUS=$last_return_code
+    BATS_ERROR_STATUS=${last_return_code}
   fi
   trap - ERR EXIT
   local failure_reason
@@ -148,33 +148,33 @@ bats_file_exit_trap() {
     # print skip message for each test (use this to avoid reimplementing filtering)
     bats_run_tests 1<&3 # restore original stdout (this is running in setup_file's redirection to BATS_OUT)
     bats_exec_file_status=0 # this should not lead to errors
-  elif [[ -z "$BATS_SETUP_FILE_COMPLETED" || -z "$BATS_TEARDOWN_FILE_COMPLETED" ]]; then
-    if [[ -z "$BATS_SETUP_FILE_COMPLETED" ]]; then
+  elif [[ -z "${BATS_SETUP_FILE_COMPLETED}" || -z "${BATS_TEARDOWN_FILE_COMPLETED}" ]]; then
+    if [[ -z "${BATS_SETUP_FILE_COMPLETED}" ]]; then
       failure_reason='setup_file'
-    elif [[ -z "$BATS_TEARDOWN_FILE_COMPLETED" ]]; then
+    elif [[ -z "${BATS_TEARDOWN_FILE_COMPLETED}" ]]; then
       failure_reason='teardown_file'
       failure_test_index=$((BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE + ${#tests_to_run[@]} + 1))
-    elif [[ -z "$BATS_SOURCE_FILE_COMPLETED" ]]; then
+    elif [[ -z "${BATS_SOURCE_FILE_COMPLETED}" ]]; then
       failure_reason='source'
     else
       failure_reason='unknown internal'
     fi
-    printf "not ok %d %s\n" "$failure_test_index" "$failure_reason failed" >&3
+    printf "not ok %d %s\n" "${failure_test_index}" "${failure_reason} failed" >&3
     local stack_trace
     bats_get_failure_stack_trace stack_trace
     bats_print_stack_trace "${stack_trace[@]}" >&3
     bats_print_failed_command "${stack_trace[@]}" >&3
-    bats_prefix_lines_for_tap_output <"$BATS_OUT" | bats_replace_filename >&3
-    rm -rf "$BATS_OUT"
+    bats_prefix_lines_for_tap_output <"${BATS_OUT}" | bats_replace_filename >&3
+    rm -rf "${BATS_OUT}"
     bats_exec_file_status=1
   fi
 
   # setup_file not executed but defined in this test file? -> might be defined in the wrong file
   if [[ -z "${BATS_SETUP_SUITE_COMPLETED-}" ]] && declare -F setup_suite >/dev/null; then
-    bats_generate_warning 3 --no-stacktrace "$BATS_TEST_FILENAME"
+    bats_generate_warning 3 --no-stacktrace "${BATS_TEST_FILENAME}"
   fi
 
-  exit "$bats_exec_file_status"
+  exit ""${bats_exec_file_status}""
 }
 
 function setup_file() {
@@ -188,20 +188,20 @@ function teardown_file() {
 bats_forward_output_of_parallel_test() {
   local test_number_in_suite=$1
   local status=0
-  wait "$(cat "$output_folder/$test_number_in_suite/pid")" || status=1
-  cat "$output_folder/$test_number_in_suite/stdout"
-  cat "$output_folder/$test_number_in_suite/stderr" >&2
-  return $status
+  wait "$(cat "${output_folder}/${test_number_in_suite}/pid")" || status=1
+  cat "${output_folder}/${test_number_in_suite}/stdout"
+  cat "${output_folder}/${test_number_in_suite}/stderr" >&2
+  return "${status}"
 }
 
 bats_is_next_parallel_test_finished() {
   local PID
   # get the pid of the next potentially finished test
-  PID=$(cat "$output_folder/$((test_number_in_suite_of_last_finished_test + 1))/pid")
+  PID=$(cat "${output_folder}/$((test_number_in_suite_of_last_finished_test + 1))/pid")
   # try to send a signal to this process
   # if it fails, the process exited,
   # if it succeeds, the process is still running
-  if kill -0 "$PID" 2>/dev/null; then
+  if kill -0 "${PID}" 2>/dev/null; then
     return 1
   fi
 }
@@ -216,20 +216,20 @@ bats_forward_output_for_parallel_tests() {
     # if we are okay with waiting or if the test has already been finished
     if [[ "$1" == "blocking" ]] || bats_is_next_parallel_test_finished; then
       ((++test_number_in_suite_of_last_finished_test))
-      bats_forward_output_of_parallel_test "$test_number_in_suite_of_last_finished_test" || status=$?
+      bats_forward_output_of_parallel_test "${test_number_in_suite_of_last_finished_test}" || status=$?
     else
       # non-blocking and the process has not finished -> abort the printing
       break
     fi
   done
-  return $status
+  return "${status}"
 }
 
 bats_run_test_with_retries() { # <args>
   local status=0
   local should_try_again=1 try_number
   for ((try_number = 1; should_try_again; ++try_number)); do
-    if "$BATS_LIBEXEC/bats-exec-test" "$@" "$try_number"; then
+    if "${BATS_LIBEXEC}/bats-exec-test" "$@" "${try_number}"; then
       should_try_again=0
     else
       status=$?
@@ -238,38 +238,38 @@ bats_run_test_with_retries() { # <args>
         status=0 # this is not the last try -> reset status
       else
         should_try_again=0
-        bats_exec_file_status=$status
+        bats_exec_file_status="${status}"
       fi
     fi
   done
-  return $status
+  return "${status}"
 }
 
 bats_run_tests_in_parallel() {
-  local output_folder="$BATS_RUN_TMPDIR/parallel_output"
+  local output_folder="${BATS_RUN_TMPDIR}/parallel_output"
   local status=0
-  mkdir -p "$output_folder"
+  mkdir -p "${output_folder}"
   # shellcheck source=lib/bats-core/semaphore.bash
-  source "$BATS_ROOT/$BATS_LIBDIR/bats-core/semaphore.bash"
+  source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/semaphore.bash"
   bats_semaphore_setup
   # the test_number_in_file is not yet incremented -> one before the next test to run
-  local test_number_in_suite_of_last_finished_test="$BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE" # stores which test was printed last
-  local test_number_in_file=0 test_number_in_suite=$BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE
+  local test_number_in_suite_of_last_finished_test="${BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE}" # stores which test was printed last
+  local test_number_in_file=0 test_number_in_suite=${BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE}
   for test_name in "${tests_to_run[@]}"; do
     # Only handle non-empty lines
-    if [[ $test_name ]]; then
+    if [[ ${test_name} ]]; then
       ((++test_number_in_suite))
       ((++test_number_in_file))
-      mkdir -p "$output_folder/$test_number_in_suite"
-      bats_semaphore_run "$output_folder/$test_number_in_suite" \
-        bats_run_test_with_retries "${flags[@]}" "$filename" "$test_name" "$test_number_in_suite" "$test_number_in_file" \
-        >"$output_folder/$test_number_in_suite/pid"
+      mkdir -p "${output_folder}/${test_number_in_suite}"
+      bats_semaphore_run "${output_folder}/${test_number_in_suite}" \
+        bats_run_test_with_retries "${flags[@]}" "${filename}" "${test_name}" "${test_number_in_suite}" "${test_number_in_file}" \
+        >"${output_folder}/${test_number_in_suite}/pid"
     fi
     # print results early to get interactive feedback
     bats_forward_output_for_parallel_tests non-blocking || status=1 # ignore if we did not finish yet
   done
   bats_forward_output_for_parallel_tests blocking || status=1
-  return $status
+  return "${status}"
 }
 
 bats_read_tests_list_file() {
@@ -281,19 +281,19 @@ bats_read_tests_list_file() {
     # check if the line begins with filename
     # filename might contain some hard to parse characters,
     # use simple string operations to work around that issue
-    if [[ "$filename" == "${test_line::${#filename}}" ]]; then
+    if [[ "${filename}" == "${test_line::${#filename}}" ]]; then
       # get the rest of the line without the separator \t
       test_name=${test_line:$((1 + ${#filename}))}
-      tests_to_run+=("$test_name")
+      tests_to_run+=("${test_name}")
       # save the first test's number for later iteration
       # this assumes that tests for a file are stored consecutive in the file!
-      if [[ -z "$test_number_in_suite" ]]; then
-        test_number_in_suite=$line_number
+      if [[ -z "${test_number_in_suite}" ]]; then
+        test_number_in_suite=${line_number}
       fi
     fi
     ((++line_number))
-  done <"$TESTS_FILE"
-  BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE="$test_number_in_suite"
+  done <"${TESTS_FILE}"
+  BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE="${test_number_in_suite}"
   declare -ri BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE # mark readonly (cannot merge assignment, because value would be lost)
 }
 
@@ -303,27 +303,27 @@ bats_run_tests() {
   if [[ "${BATS_RUN_TESTS_SKIPPED-}" ]]; then
     # shellcheck disable=SC2317
     bats_test_begin() {
-      printf "ok %d %s # skip %s\n" "$test_number_in_suite" "$1" "$BATS_RUN_TESTS_SKIPPED_REASON"  >&3
+      printf "ok %d %s # skip %s\n" "${test_number_in_suite}" "$1" "${BATS_RUN_TESTS_SKIPPED_REASON}"  >&3
       return 1
     }
     local test_number_in_suite=0
     for test_name in "${tests_to_run[@]}"; do
       ((++test_number_in_suite))
-      eval "$test_name" || true
+      eval "${test_name}" || true
     done
     exit 0
   fi
 
-  if [[ "$num_jobs" -lt 1 ]]; then
-    printf 'Invalid number of jobs: %s\n' "$num_jobs" >&2
+  if [[ "${num_jobs}" -lt 1 ]]; then
+    printf 'Invalid number of jobs: %s\n' "${num_jobs}" >&2
     exit 1
   fi
 
-  if [[ "$num_jobs" != 1 && "${BATS_NO_PARALLELIZE_WITHIN_FILE-False}" == False ]]; then
-    export BATS_SEMAPHORE_NUMBER_OF_SLOTS="$num_jobs"
-    bats_run_tests_in_parallel "$BATS_RUN_TMPDIR/parallel_output" || bats_exec_file_status=1
+  if [[ "${num_jobs}" != 1 && "${BATS_NO_PARALLELIZE_WITHIN_FILE-False}" == False ]]; then
+    export BATS_SEMAPHORE_NUMBER_OF_SLOTS="${num_jobs}"
+    bats_run_tests_in_parallel "${BATS_RUN_TMPDIR}/parallel_output" || bats_exec_file_status=1
   else
-    local test_number_in_suite=$BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE \
+    local test_number_in_suite=${BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE} \
       test_number_in_file=0
     for test_name in "${tests_to_run[@]}"; do
       #echo "bats-exec-file: execute test ${test_name}" >&2
@@ -335,8 +335,8 @@ bats_run_tests() {
       if [[ -n ${test_name-} ]]; then
         ((++test_number_in_suite))
         ((++test_number_in_file))
-        bats_run_test_with_retries "${flags[@]}" "$filename" "$test_name" \
-          "$test_number_in_suite" "$test_number_in_file" || bats_exec_file_status=$?
+        bats_run_test_with_retries "${flags[@]}" "${filename}" "${test_name}" \
+          "${test_number_in_suite}" "${test_number_in_file}" || bats_exec_file_status=$?
       fi
     done
   fi
@@ -344,16 +344,16 @@ bats_run_tests() {
 
 bats_create_file_tempdirs() {
   local bats_files_tmpdir="${BATS_RUN_TMPDIR}/file"
-  if ! mkdir -p "$bats_files_tmpdir"; then
-    printf 'Failed to create %s\n' "$bats_files_tmpdir" >&2
+  if ! mkdir -p "${bats_files_tmpdir}"; then
+    printf 'Failed to create %s\n' "${bats_files_tmpdir}" >&2
     exit 1
   fi
-  BATS_FILE_TMPDIR="$bats_files_tmpdir/${BATS_TEST_FILE_NUMBER?}"
-  if ! mkdir "$BATS_FILE_TMPDIR"; then
-    printf 'Failed to create BATS_FILE_TMPDIR=%s\n' "$BATS_FILE_TMPDIR" >&2
+  BATS_FILE_TMPDIR="${bats_files_tmpdir}/${BATS_TEST_FILE_NUMBER?}"
+  if ! mkdir "${BATS_FILE_TMPDIR}"; then
+    printf 'Failed to create BATS_FILE_TMPDIR=%s\n' "${BATS_FILE_TMPDIR}" >&2
     exit 1
   fi
-  ln -s "$BATS_TEST_FILENAME" "$BATS_FILE_TMPDIR-$(basename "$BATS_TEST_FILENAME").source_file"
+  ln -s "${BATS_TEST_FILENAME}" "${BATS_FILE_TMPDIR}-$(basename "${BATS_TEST_FILENAME}").source_file"
   export BATS_FILE_TMPDIR
 }
 
@@ -368,8 +368,8 @@ if [[ ${#tests_to_run[@]} -eq 0 ]]; then
   exit 0
 fi
 
-if [[ -n "$extended_syntax" ]]; then
-  printf "suite %s\n" "$filename"
+if [[ -n "${extended_syntax}" ]]; then
+  printf "suite %s\n" "${filename}"
 fi
 
 # requires the test list to be read but not empty
@@ -389,4 +389,4 @@ bats_run_tests
 trap bats_interrupt_trap INT
 bats_run_teardown_file
 
-exit $bats_exec_file_status
+exit "${bats_exec_file_status}"

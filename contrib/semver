@@ -7,12 +7,12 @@ set -o errexit -o nounset -o pipefail
 
 NAT='0|[1-9][0-9]*'
 ALPHANUM='[0-9]*[A-Za-z-][0-9A-Za-z-]*'
-IDENT="$NAT|$ALPHANUM"
+IDENT="${NAT}|${ALPHANUM}"
 FIELD='[0-9A-Za-z-]+'
 
 SEMVER_REGEX="\
 ^[vV]?\
-($NAT)\\.($NAT)\\.($NAT)\
+(${NAT})\\.(${NAT})\\.(${NAT})\
 (\\-(${IDENT})(\\.(${IDENT}))*)?\
 (\\+${FIELD}(\\.${FIELD})*)?$"
 
@@ -21,11 +21,11 @@ PROG_VERSION="3.0.0"
 
 USAGE="\
 Usage:
-  $PROG bump (major|minor|patch|release|prerel <prerel>|build <build>) <version>
-  $PROG compare <version> <other_version>
-  $PROG get (major|minor|patch|release|prerel|build) <version>
-  $PROG --help
-  $PROG --version
+  ${PROG} bump (major|minor|patch|release|prerel <prerel>|build <build>) <version>
+  ${PROG} compare <version> <other_version>
+  ${PROG} get (major|minor|patch|release|prerel|build) <version>
+  ${PROG} --help
+  ${PROG} --version
 
 Arguments:
   <version>  A version must match the following regular expression:
@@ -73,17 +73,17 @@ function error {
 }
 
 function usage-help {
-  error "$USAGE"
+  error "${USAGE}"
 }
 
 function usage-version {
-  echo -e "${PROG}: $PROG_VERSION"
+  echo -e "${PROG}: ${PROG_VERSION}"
   exit 0
 }
 
 function validate-version {
   local version=$1
-  if [[ "$version" =~ $SEMVER_REGEX ]]; then
+  if [[ "${version}" =~ ${SEMVER_REGEX} ]]; then
     # if a second argument is passed, store the result in var named by $2
     if [ "$#" -eq "2" ]; then
       local major=${BASH_REMATCH[1]}
@@ -91,17 +91,17 @@ function validate-version {
       local patch=${BASH_REMATCH[3]}
       local prere=${BASH_REMATCH[4]}
       local build=${BASH_REMATCH[8]}
-      eval "$2=(\"$major\" \"$minor\" \"$patch\" \"$prere\" \"$build\")"
+      eval "$2=(\"${major}\" \"${minor}\" \"${patch}\" \"${prere}\" \"${build}\")"
     else
-      echo "$version"
+      echo "${version}"
     fi
   else
-    error "version $version does not match the semver scheme 'X.Y.Z(-PRERELEASE)(+BUILD)'. See help for more information."
+    error "version ${version} does not match the semver scheme 'X.Y.Z(-PRERELEASE)(+BUILD)'. See help for more information."
   fi
 }
 
 function is-nat {
-  [[ "$1" =~ ^($NAT)$ ]]
+  [[ "$1" =~ ^(${NAT})$ ]]
 }
 
 function is-null {
@@ -149,42 +149,42 @@ function compare-fields {
   local order=$((0))
 
   while true; do
-    [ $order -ne 0 ] && {
-      echo $order
+    [ ${order} -ne 0 ] && {
+      echo ${order}
       return
     }
 
     : $((i++))
-    left="${leftfield[$i]}"
-    right="${rightfield[$i]}"
+    left="${leftfield[${i}]}"
+    right="${rightfield[${i}]}"
 
-    is-null "$left" && is-null "$right" && {
+    is-null "${left}" && is-null "${right}" && {
       echo 0
       return
     }
-    is-null "$left" && {
+    is-null "${left}" && {
       echo -1
       return
     }
-    is-null "$right" && {
+    is-null "${right}" && {
       echo 1
       return
     }
 
-    is-nat "$left" && is-nat "$right" && {
-      order=$(order-nat "$left" "$right")
+    is-nat "${left}" && is-nat "${right}" && {
+      order=$(order-nat "${left}" "${right}")
       continue
     }
-    is-nat "$left" && {
+    is-nat "${left}" && {
       echo -1
       return
     }
-    is-nat "$right" && {
+    is-nat "${right}" && {
       echo 1
       return
     }
     {
-      order=$(order-string "$left" "$right")
+      order=$(order-string "${left}" "${right}")
       continue
     }
   done
@@ -202,8 +202,8 @@ function compare-version {
   local right=("${V_[0]}" "${V_[1]}" "${V_[2]}")
 
   order=$(compare-fields left right)
-  [ "$order" -ne 0 ] && {
-    echo "$order"
+  [ "${order}" -ne 0 ] && {
+    echo "${order}"
     return
   }
 
@@ -217,15 +217,15 @@ function compare-version {
   # if left and right have no pre-release part, then left equals right
   # if only one of left/right has pre-release part, that one is less than simple M.m.p
 
-  [ -z "$prerel" ] && [ -z "$prerel_" ] && {
+  [ -z "${prerel}" ] && [ -z "${prerel_}" ] && {
     echo 0
     return
   }
-  [ -z "$prerel" ] && {
+  [ -z "${prerel}" ] && {
     echo 1
     return
   }
-  [ -z "$prerel_" ] && {
+  [ -z "${prerel_}" ] && {
     echo -1
     return
   }
@@ -259,7 +259,7 @@ function command-bump {
   *) usage-help ;;
   esac
 
-  validate-version "$version" parts
+  validate-version "${version}" parts
   # shellcheck disable=SC2154
   local major="${parts[0]}"
   local minor="${parts[1]}"
@@ -267,7 +267,7 @@ function command-bump {
   local prere="${parts[3]}"
   local build="${parts[4]}"
 
-  case "$command" in
+  case "${command}" in
   major) new="$((major + 1)).0.0" ;;
   minor) new="${major}.$((minor + 1)).0" ;;
   patch) new="${major}.${minor}.$((patch + 1))" ;;
@@ -277,7 +277,7 @@ function command-bump {
   *) usage-help ;;
   esac
 
-  echo "$new"
+  echo "${new}"
   exit 0
 }
 
@@ -294,7 +294,7 @@ function command-compare {
   esac
 
   set +u # need unset array element to evaluate to null
-  compare-version "$v" "$v_"
+  compare-version "${v}" "${v_}"
   exit 0
 }
 
@@ -310,7 +310,7 @@ function command-get {
   part="$1"
   version="$2"
 
-  validate-version "$version" parts
+  validate-version "${version}" parts
   local major="${parts[0]}"
   local minor="${parts[1]}"
   local patch="${parts[2]}"
@@ -318,7 +318,7 @@ function command-get {
   local build="${parts[4]:1}"
   local release="${major}.${minor}.${patch}"
 
-  case "$part" in
+  case "${part}" in
   major | minor | patch | release | prerel | build) echo "${!part}" ;;
   *) usage-help ;;
   esac
@@ -335,7 +335,7 @@ esac
 
 case $1 in
 --help | -h)
-  echo -e "$USAGE"
+  echo -e "${USAGE}"
   exit 0
   ;;
 --version | -v) usage-version ;;

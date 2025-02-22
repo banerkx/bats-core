@@ -6,21 +6,21 @@ setup() {
 }
 
 @test "no --trace doesn't show anything on failure" {
-  reentrant_run -1 bats "$FIXTURE_ROOT/failing_complex.bats"
+  reentrant_run -1 bats "${FIXTURE_ROOT}/failing_complex.bats"
   [ "${lines[0]}" = "1..1" ]
   [ "${lines[1]}" = "not ok 1 a complex failing test" ]
-  [ "${lines[2]}" = "# (in test file $RELATIVE_FIXTURE_ROOT/failing_complex.bats, line 4)" ]
-  [ "${lines[3]}" = "#   \`[ \$status -eq 0 ]' failed" ]
+  [ "${lines[2]}" = "# (in test file ${RELATIVE_FIXTURE_ROOT}/failing_complex.bats, line 4)" ]
+  [ "${lines[3]}" = "#   \`[ \"${status}" -eq 0 ]' failed" ]
   [ "${lines[4]}" = "# 123" ]
   [ ${#lines[@]} -eq 5 ]
 }
 
 @test "--trace recurses into functions but not into run" {
-  reentrant_run -1 bats --trace "$FIXTURE_ROOT/failing_recursive.bats" --line-reference-format colon
+  reentrant_run -1 bats --trace "${FIXTURE_ROOT}/failing_recursive.bats" --line-reference-format colon
 
   [ "${lines[0]}" = '1..1' ]
   [ "${lines[1]}" = 'not ok 1 a recursive failing test' ]
-  [ "${lines[2]}" = "# (in test file $RELATIVE_FIXTURE_ROOT/failing_recursive.bats:12)" ]
+  [ "${lines[2]}" = "# (in test file ${RELATIVE_FIXTURE_ROOT}/failing_recursive.bats:12)" ]
   [ "${lines[3]}" = "#   \`false' failed" ]
   [ "${lines[4]}" = '# $ [failing_recursive.bats:9]' ]
   [ "${lines[5]}" = '# $ echo Outer' ]
@@ -77,8 +77,8 @@ setup() {
 
   IFS=. read -r -a bash_version <<<"${BASH_VERSION}"
   check_func="check_bash_${bash_version[0]}"
-  if [[ $(type -t "$check_func") != function ]]; then
+  if [[ $(type -t "${check_func}") != function ]]; then
     check_func="check_bash_${bash_version[0]}_${bash_version[1]}"
   fi
-  $check_func
+  ${check_func}
 }

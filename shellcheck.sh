@@ -4,7 +4,7 @@ set -e
 
 targets=()
 while IFS= read -r -d $'\0'; do
-  targets+=("$REPLY")
+  targets+=("${REPLY}")
 done < <(
   find . -type f \( -name \*.bash -o -name \*.sh \) -print0
   find . -type f -name '*.bats' -not -name '*_no_shellcheck*' -print0

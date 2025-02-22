@@ -5,7 +5,7 @@ export BATS_VERSION='1.11.1'
 VALID_FORMATTERS="pretty, junit, tap, tap13"
 
 version() {
-  printf 'Bats %s\n' "$BATS_VERSION"
+  printf 'Bats %s\n' "${BATS_VERSION}"
 }
 
 abort() {
@@ -15,7 +15,7 @@ abort() {
     shift
   fi
   printf 'Error: %s\n' "$1" >&2
-  if [[ -n $print_usage ]]; then
+  if [[ -n ${print_usage} ]]; then
     usage >&2
   fi
   exit 1
@@ -38,14 +38,14 @@ HELP_TEXT_HEADER
   -c, --count               Count test cases without running any tests
   --code-quote-style <style>
                             A two character string of code quote delimiters
-                            or 'custom' which requires setting $BATS_BEGIN_CODE_QUOTE and
-                            $BATS_END_CODE_QUOTE. Can also be set via $BATS_CODE_QUOTE_STYLE
+                            or 'custom' which requires setting ${BATS_BEGIN_CODE_QUOTE} and
+                            ${BATS_END_CODE_QUOTE}. Can also be set via ${BATS_CODE_QUOTE_STYLE}
   --line-reference-format   Controls how file/line references e.g. in stack traces are printed:
                               - comma_line (default): a.bats, line 1
                               - colon:  a.bats:1
                               - uri: file:///tests/a.bats:1
                               - custom: provide your own via defining bats_format_file_line_reference_custom
-                                        with parameters <filename> <line>, store via `printf -v "$output"`
+                                        with parameters <filename> <line>, store via `printf -v "${output}"`
   -f, --filter <regex>      Only run tests that match the regular expression
   --filter-status <status>  Only run tests with the given status in the last completed (no CTRL+C/SIGINT) run.
                             Valid <status> values are:
@@ -74,14 +74,14 @@ HELP_TEXT_HEADER
   --report-formatter <type> Switch between reporters (same options as --formatter)
   -o, --output <dir>        Directory to write report files (must exist)
   -p, --pretty              Shorthand for "--formatter pretty"
-  --print-output-on-failure Automatically print the value of `$output` on failed tests
+  --print-output-on-failure Automatically print the value of `${output}` on failed tests
   -r, --recursive           Include tests in subdirectories
   --show-output-of-passing-tests
                             Print output of passing tests
   -t, --tap                 Shorthand for "--formatter tap"
   -T, --timing              Add timing information to tests
   -x, --trace               Print test commands as they are executed (like `set -x`)
-  --verbose-run             Make `run` print `$output` by default
+  --verbose-run             Make `run` print `${output}` by default
   -v, --version             Display the version number
 
   For more information, see https://github.com/bats-core/bats-core
@@ -91,20 +91,20 @@ HELP_TEXT_BODY
 expand_path() {
   local path="${1%/}"
   local dirname="${path%/*}"
-  if [[ -z "$dirname" ]]; then
+  if [[ -z "${dirname}" ]]; then
     dirname=/
   fi
   local result="$2"
-  local OLDPWD="$PWD"
+  local OLDPWD="${PWD}"
 
-  if [[ "$dirname" == "$path" ]]; then
-    dirname="$PWD"
+  if [[ "${dirname}" == "${path}" ]]; then
+    dirname="${PWD}"
   else
-    cd "$dirname"
-    dirname="$PWD"
-    cd "$OLDPWD"
+    cd "${dirname}"
+    dirname="${PWD}"
+    cd "${OLDPWD}"
   fi
-  printf -v "$result" '%s/%s' "$dirname" "${path##*/}"
+  printf -v "${result}" '%s/%s' "${dirname}" "${path##*/}"
 }
 
 BATS_LIBEXEC="$(
@@ -112,8 +112,8 @@ BATS_LIBEXEC="$(
   pwd
 )"
 export BATS_LIBEXEC
-export BATS_CWD="$PWD"
-export PATH="$BATS_LIBEXEC:$PATH"
+export BATS_CWD="${PWD}"
+export PATH="${BATS_LIBEXEC}:${PATH}"
 export BATS_ROOT_PID=$$
 export BATS_TMPDIR="${TMPDIR:-/tmp}"
 BATS_TMPDIR=${BATS_TMPDIR%/} # chop off trailing / to avoid duplication
@@ -138,21 +138,21 @@ single_char_flags="hvcprtTx"
 
 # Unpack single-character options bundled together, e.g. -cr, -pr.
 for arg in "$@"; do
-  if [[ "$arg" =~ ^-[^-]. ]]; then
+  if [[ "${arg}" =~ ^-[^-]. ]]; then
     index=1
     while option="${arg:$((index++)):1}"; do
-      if [[ -z "$option" ]]; then
+      if [[ -z "${option}" ]]; then
         break
       fi
-      if [[ "$single_char_flags" != *$option* && -n "${arg:index}" ]]; then
-        printf "Error: -%s is not allowed within pack of flags.\n" "$option"
+      if [[ "${single_char_flags}" != *${option}* && -n "${arg:index}" ]]; then
+        printf "Error: -%s is not allowed within pack of flags.\n" "${option}"
         printf "       Please put it last (e.g. \`-rF junit\` instead of \`-Fr junit\`), or on its own (\`-r -F junit\`)!\n"
         exit 1
       fi
-      arguments+=("-$option")
+      arguments+=("-${option}")
     done
   else
-    arguments+=("$arg")
+    arguments+=("${arg}")
   fi
   shift
 done
@@ -265,14 +265,14 @@ while [[ "$#" -ne 0 ]]; do
   --gather-test-outputs-in)
     shift
     output_dir="$1"
-    if [ -d "$output_dir" ]; then
-      if ! find "$output_dir" -mindepth 1 -exec false {} + 2>/dev/null; then
-        abort --no-print-usage "Directory '$output_dir' must be empty for --gather-test-outputs-in"
+    if [ -d "${output_dir}" ]; then
+      if ! find "${output_dir}" -mindepth 1 -exec false {} + 2>/dev/null; then
+        abort --no-print-usage "Directory '${output_dir}' must be empty for --gather-test-outputs-in"
       fi
-    elif ! mkdir "$output_dir" 2>/dev/null; then
-      abort --no-print-usage "Could not create '$output_dir' for --gather-test-outputs-in"
+    elif ! mkdir "${output_dir}" 2>/dev/null; then
+      abort --no-print-usage "Could not create '${output_dir}' for --gather-test-outputs-in"
     fi
-    flags+=(--gather-test-outputs-in "$output_dir")
+    flags+=(--gather-test-outputs-in "${output_dir}")
     ;;
   --setup-suite-file)
     shift
@@ -304,17 +304,17 @@ while [[ "$#" -ne 0 ]]; do
   shift
 done
 
-if [[ ! $BATS_LINE_REFERENCE_FORMAT =~ (custom|comma_line|colon|uri) ]]; then
-  abort "Invalid BATS_LINE_REFERENCE_FORMAT '$BATS_LINE_REFERENCE_FORMAT' (e.g. via --line-reference-format)"
+if [[ ! ${BATS_LINE_REFERENCE_FORMAT} =~ (custom|comma_line|colon|uri) ]]; then
+  abort "Invalid BATS_LINE_REFERENCE_FORMAT '${BATS_LINE_REFERENCE_FORMAT}' (e.g. via --line-reference-format)"
 fi
 
 if [[ -n "${BATS_RUN_TMPDIR:-}" ]]; then
-  if [[ -d "$BATS_RUN_TMPDIR" ]]; then
-    printf "Error: BATS_RUN_TMPDIR (%s) already exists\n" "$BATS_RUN_TMPDIR" >&2
+  if [[ -d "${BATS_RUN_TMPDIR}" ]]; then
+    printf "Error: BATS_RUN_TMPDIR (%s) already exists\n" "${BATS_RUN_TMPDIR}" >&2
     printf "Reusing old run directories can lead to unexpected results ... aborting!\n" >&2
     exit 1
-  elif ! mkdir -p "$BATS_RUN_TMPDIR"; then
-    printf "Error: Failed to create BATS_RUN_TMPDIR (%s)\n" "$BATS_RUN_TMPDIR" >&2
+  elif ! mkdir -p "${BATS_RUN_TMPDIR}"; then
+    printf "Error: Failed to create BATS_RUN_TMPDIR (%s)\n" "${BATS_RUN_TMPDIR}" >&2
     exit 1
   fi
 elif ! BATS_RUN_TMPDIR=$(mktemp -d "${BATS_TMPDIR}/bats-run-XXXXXX"); then
@@ -325,66 +325,66 @@ fi
 export BATS_WARNING_FILE="${BATS_RUN_TMPDIR}/warnings.log"
 
 bats_exit_trap() {
-  if [[ -s "$BATS_WARNING_FILE" ]]; then
+  if [[ -s "${BATS_WARNING_FILE}" ]]; then
     local pre_cat='' post_cat=''
-    if [[ $formatter == pretty ]]; then
+    if [[ ${formatter} == pretty ]]; then
       pre_cat=$'\x1B[31m'
       post_cat=$'\x1B[0m'
     fi
-    printf "\nThe following warnings were encountered during tests:\n%s" "$pre_cat"
-    cat "$BATS_WARNING_FILE"
-    printf "%s" "$post_cat"
+    printf "\nThe following warnings were encountered during tests:\n%s" "${pre_cat}"
+    cat "${BATS_WARNING_FILE}"
+    printf "%s" "${post_cat}"
   fi >&2
 
-  if [[ -n "$BATS_TEMPDIR_CLEANUP" ]]; then
-    rm -rf "$BATS_RUN_TMPDIR"
+  if [[ -n "${BATS_TEMPDIR_CLEANUP}" ]]; then
+    rm -rf "${BATS_RUN_TMPDIR}"
   else
-    printf "BATS_RUN_TMPDIR: %s\n" "$BATS_RUN_TMPDIR" >&2
+    printf "BATS_RUN_TMPDIR: %s\n" "${BATS_RUN_TMPDIR}" >&2
   fi
 }
 
 trap bats_exit_trap EXIT
 
-if [[ "$formatter" != "tap" ]]; then
+if [[ "${formatter}" != "tap" ]]; then
   flags+=('-x')
 fi
 
-if [[ -n "$report_formatter" && "$report_formatter" != "tap" ]]; then
+if [[ -n "${report_formatter}" && "${report_formatter}" != "tap" ]]; then
   flags+=('-x')
 fi
 
-if [[ "$formatter" == "junit" ]]; then
+if [[ "${formatter}" == "junit" ]]; then
   flags+=('-T')
   formatter_flags+=('--base-path' "${arguments[0]}")
 fi
-if [[ "$report_formatter" == "junit" ]]; then
+if [[ "${report_formatter}" == "junit" ]]; then
   flags+=('-T')
   report_formatter_flags+=('--base-path' "${arguments[0]}")
 fi
 
-if [[ "$formatter" == "pretty" ]]; then
+if [[ "${formatter}" == "pretty" ]]; then
   formatter_flags+=('--base-path' "${arguments[0]}")
 fi
 
 # if we don't need to filter extended syntax, use the faster formatter
-if [[ "$formatter" == tap && -z "$report_formatter" ]]; then
+if [[ "${formatter}" == tap && -z "${report_formatter}" ]]; then
   formatter="cat"
 fi
 
 bats_check_formatter() { # <formatter-path>
   local -r formatter="$1"
-  if [[ ! -f "$formatter" ]]; then
-    printf "ERROR: Formatter '%s' is not readable!\n" "$formatter"
+  if [[ ! -f "${formatter}" ]]; then
+    printf "ERROR: Formatter '%s' is not readable!\n" "${formatter}"
     exit 1
-  elif [[ ! -x "$formatter" ]]; then
-    printf "ERROR: Formatter '%s' is not executable!\n" "$formatter"
+  elif [[ ! -x "${formatter}" ]]; then
+    printf "ERROR: Formatter '%s' is not executable!\n" "${formatter}"
     exit 1
   fi
 }
 
-if [[ $formatter == /* ]]; then # absolute paths are direct references to formatters
-  bats_check_formatter "$formatter"
-  interpolated_formatter="$formatter"
+if [[ ${formatter} == /* ]]; then # absolute paths are direct references to formatters
+  bats_check_formatter "${formatter}"
+  interpolated_formatter="${formatter}"
 else
   interpolated_formatter="bats-format-${formatter}"
 fi
@@ -393,13 +393,13 @@ if [[ "${#arguments[@]}" -eq 0 ]]; then
   abort 'Must specify at least one <test>'
 fi
 
-if [[ -n "$report_formatter" ]]; then
+if [[ -n "${report_formatter}" ]]; then
   if [[ ! -w "${BATS_REPORT_OUTPUT_DIR}" ]]; then
     abort "Output path ${BATS_REPORT_OUTPUT_DIR} is not writeable"
   fi
   # only set BATS_REPORT_FILENAME if none was given
   if [[ -z "${BATS_REPORT_FILENAME:-}" ]]; then
-    case "$report_formatter" in
+    case "${report_formatter}" in
     tap | tap13)
       BATS_REPORT_FILENAME="report.tap"
       ;;
@@ -413,8 +413,8 @@ if [[ -n "$report_formatter" ]]; then
   fi
 fi
 
-if [[ $report_formatter == /* ]]; then # absolute paths are direct references to formatters
-  bats_check_formatter "$report_formatter"
+if [[ ${report_formatter} == /* ]]; then # absolute paths are direct references to formatters
+  bats_check_formatter "${report_formatter}"
   interpolated_report_formatter="${report_formatter}"
 else
   interpolated_report_formatter="bats-format-${report_formatter}"
@@ -438,54 +438,54 @@ custom)
   fi
   ;;
 *)
-  printf "ERROR: Unknown BATS_CODE_QUOTE_STYLE: %s\n" "$BATS_CODE_QUOTE_STYLE" >&2
+  printf "ERROR: Unknown BATS_CODE_QUOTE_STYLE: %s\n" "${BATS_CODE_QUOTE_STYLE}" >&2
   exit 1
   ;;
 esac
 
-if [[ -n "$setup_suite_file" && ! -f "$setup_suite_file" ]]; then
-  abort "--setup-suite-file $setup_suite_file does not exist!"
+if [[ -n "${setup_suite_file}" && ! -f "${setup_suite_file}" ]]; then
+  abort "--setup-suite-file ${setup_suite_file} does not exist!"
 fi
 
 filenames=()
 for filename in "${arguments[@]}"; do
-  expand_path "$filename" 'filename'
+  expand_path "${filename}" 'filename'
 
-  if [[ -z "$setup_suite_file" ]]; then
-    if [[ -d "$filename" ]]; then
-      dirname="$filename"
+  if [[ -z "${setup_suite_file}" ]]; then
+    if [[ -d "${filename}" ]]; then
+      dirname="${filename}"
     else
       dirname="${filename%/*}"
     fi
-    potential_setup_suite_file="$dirname/setup_suite.bash"
-    if [[ -e "$potential_setup_suite_file" ]]; then
-      setup_suite_file="$potential_setup_suite_file"
+    potential_setup_suite_file="${dirname}/setup_suite.bash"
+    if [[ -e "${potential_setup_suite_file}" ]]; then
+      setup_suite_file="${potential_setup_suite_file}"
     fi
   fi
 
-  if [[ -d "$filename" ]]; then
+  if [[ -d "${filename}" ]]; then
     shopt -s nullglob
-    if [[ "$recursive" -eq 1 ]]; then
+    if [[ "${recursive}" -eq 1 ]]; then
       while IFS= read -r -d $'\0' file; do
-        filenames+=("$file")
-      done < <(find -L "$filename" -type f -name "*.${BATS_FILE_EXTENSION:-bats}" -print0 | sort -z)
+        filenames+=("${file}")
+      done < <(find -L "${filename}" -type f -name "*.${BATS_FILE_EXTENSION:-bats}" -print0 | sort -z)
     else
-      for suite_filename in "$filename"/*."${BATS_FILE_EXTENSION:-bats}"; do
-        filenames+=("$suite_filename")
+      for suite_filename in "${filename}"/*."${BATS_FILE_EXTENSION:-bats}"; do
+        filenames+=("${suite_filename}")
       done
     fi
     shopt -u nullglob
   else
-    filenames+=("$filename")
+    filenames+=("${filename}")
   fi
 done
 
-if [[ -n "$setup_suite_file" ]]; then
-  flags+=("--setup-suite-file" "$setup_suite_file")
+if [[ -n "${setup_suite_file}" ]]; then
+  flags+=("--setup-suite-file" "${setup_suite_file}")
 fi
 
 # shellcheck source=lib/bats-core/validator.bash
-source "$BATS_ROOT/$BATS_LIBDIR/bats-core/validator.bash"
+source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/validator.bash"
 
 trap 'BATS_INTERRUPTED=true' INT # let the lower levels handle the interruption
 
@@ -497,20 +497,20 @@ bats_tee() { # <output-file> <command...>
   local output_file=$1 status=0
   shift
   exec 3<&1 # use FD3 to get around pipe
-  tee >(cat >&3) | "$@" >"$output_file" || status=$?
+  tee >(cat >&3) | "$@" >"${output_file}" || status=$?
   if (( status != 0 )); then
-    printf "ERROR: command \`%s\` failed with status %d\n" "$*" "$status" >&2
+    printf "ERROR: command \`%s\` failed with status %d\n" "$*" "${status}" >&2
   fi
-  return $status
+  return "${status}"
 }
 
-if [[ -n "$report_formatter" ]]; then
+if [[ -n "${report_formatter}" ]]; then
   exec bats-exec-suite "${flags[@]}" "${filenames[@]}" |
-    bats_tee "${BATS_REPORT_OUTPUT_DIR}/${BATS_REPORT_FILENAME}" "$interpolated_report_formatter" "${report_formatter_flags[@]}" |
+    bats_tee "${BATS_REPORT_OUTPUT_DIR}/${BATS_REPORT_FILENAME}" "${interpolated_report_formatter}" "${report_formatter_flags[@]}" |
     bats_test_count_validator |
-    "$interpolated_formatter" "${formatter_flags[@]}"
+    "${interpolated_formatter}" "${formatter_flags[@]}"
 else
   exec bats-exec-suite "${flags[@]}" "${filenames[@]}" |
     bats_test_count_validator |
-    "$interpolated_formatter" "${formatter_flags[@]}"
+    "${interpolated_formatter}" "${formatter_flags[@]}"
 fi

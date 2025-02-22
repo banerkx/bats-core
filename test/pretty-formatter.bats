@@ -16,7 +16,7 @@ not ok 2 test2 in 234ms
 begin 3 test3
 ok 3 test3 in 345ms # skip
 HERE
-  echo "$output"
+  echo "${output}"
   [[ "${lines[1]}" == *'test [123]'* ]]
   [[ "${lines[2]}" == *'test2 [234]'* ]]
   [[ "${lines[3]}" == *'test3 (skipped) [345]'* ]]
@@ -24,7 +24,7 @@ HERE
 
 @test "pretty formatter summary is colorized red on failure" {
   bats_require_minimum_version 1.5.0
-  reentrant_run -1 bats --pretty "$FIXTURE_ROOT/failing.bats"
+  reentrant_run -1 bats --pretty "${FIXTURE_ROOT}/failing.bats"
 
   [ "${lines[4]}" == $'\033[0m\033[31;1m' ] # TODO: avoid checking for the leading reset too
   [ "${lines[5]}" == '1 test, 1 failure' ]
@@ -33,7 +33,7 @@ HERE
 
 @test "pretty formatter summary is colorized green on success" {
   bats_require_minimum_version 1.5.0
-  reentrant_run -0 bats --pretty "$FIXTURE_ROOT/passing.bats"
+  reentrant_run -0 bats --pretty "${FIXTURE_ROOT}/passing.bats"
 
   [ "${lines[2]}" == $'\033[0m\033[32;1m' ] # TODO: avoid checking for the leading reset too
   [ "${lines[3]}" == '1 test, 0 failures' ]

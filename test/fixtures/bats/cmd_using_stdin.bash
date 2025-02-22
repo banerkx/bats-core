@@ -8,8 +8,8 @@ else
 fi
 
 # Just reading from stdin
-while read -r -t $timeout foo; do
-  if [ "$foo" == "EXIT" ]; then
+while read -r -t "${timeout}" foo; do
+  if [ "${foo}" == "EXIT" ]; then
     echo "Found"
     exit 0
   fi

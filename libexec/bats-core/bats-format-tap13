@@ -3,7 +3,7 @@ set -e
 
 yaml_block_open=''
 add_yaml_entry() {
-  if [[ -z "$yaml_block_open" ]]; then
+  if [[ -z "${yaml_block_open}" ]]; then
     printf "  ---\n"
   fi
   printf "  %s: %s\n" "$1" "$2"
@@ -11,7 +11,7 @@ add_yaml_entry() {
 }
 
 close_previous_yaml_block() {
-  if [[ -n "$yaml_block_open" ]]; then
+  if [[ -n "${yaml_block_open}" ]]; then
     printf "  ...\n"
     yaml_block_open=''
   fi
@@ -22,7 +22,7 @@ trap '' INT
 number_of_printed_log_lines_for_this_test_so_far=0
 
 # shellcheck source=lib/bats-core/formatter.bash
-source "$BATS_ROOT/$BATS_LIBDIR/bats-core/formatter.bash"
+source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/formatter.bash"
 
 bats_tap_stream_plan() {
   printf "TAP version 13\n"
@@ -68,7 +68,7 @@ bats_tap_stream_skipped() { # <test index> <test name> <reason>
 }
 
 bats_tap_stream_comment() { # <comment text without leading '# '>
-  if [[ $number_of_printed_log_lines_for_this_test_so_far -eq 0 ]]; then
+  if [[ ${number_of_printed_log_lines_for_this_test_so_far} -eq 0 ]]; then
     add_yaml_entry "message" "|" # use a multiline string for this entry
   fi
   ((++number_of_printed_log_lines_for_this_test_so_far))

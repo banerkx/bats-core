@@ -7,4 +7,4 @@ get_pr_json() {
 PR_NUMBER="$1"
 LABEL="$2"
 
-get_pr_json "$PR_NUMBER" | jq .labels[].name | grep "$LABEL"
+get_pr_json "${PR_NUMBER}" | jq .labels[].name | grep "${LABEL}"

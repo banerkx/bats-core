@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck source=lib/bats-core/formatter.bash
-source "$BATS_ROOT/$BATS_LIBDIR/bats-core/formatter.bash"
+source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/formatter.bash"
 
 BASE_PATH=.
 
@@ -40,11 +40,11 @@ init_file() {
 
 host() {
   local hostname="${HOST:-}"
-  [[ -z "$hostname" ]] && hostname="${HOSTNAME:-}"
-  [[ -z "$hostname" ]] && hostname="$(uname -n)"
-  [[ -z "$hostname" ]] && hostname="$(hostname -f)"
+  [[ -z "${hostname}" ]] && hostname="${HOSTNAME:-}"
+  [[ -z "${hostname}" ]] && hostname="$(uname -n)"
+  [[ -z "${hostname}" ]] && hostname="$(hostname -f)"
 
-  echo "$hostname"
+  echo "${hostname}"
 }
 
 # convert $1 (time in milliseconds) to seconds
@@ -52,10 +52,10 @@ milliseconds_to_seconds() {
   # we cannot rely on having bc for this calculation
   full_seconds=$(($1 / 1000))
   remaining_milliseconds=$(($1 % 1000))
-  if [[ $remaining_milliseconds -eq 0 ]]; then
-    printf "%d" "$full_seconds"
+  if [[ ${remaining_milliseconds} -eq 0 ]]; then
+    printf "%d" "${full_seconds}"
   else
-    printf "%d.%03d" "$full_seconds" "$remaining_milliseconds"
+    printf "%d.%03d" "${full_seconds}" "${remaining_milliseconds}"
   fi
 }
 
@@ -79,19 +79,19 @@ suite_footer() {
 }
 
 print_test_case() {
-  if [[ "$test_result_state" == ok && -z "$_system_out_log" && -z "$_buffer_log" ]]; then
+  if [[ "${test_result_state}" == ok && -z "${_system_out_log}" && -z "${_buffer_log}" ]]; then
     # pass and no output can be shortened
     printf "    <testcase classname=\"%s\" name=\"%s\" time=\"%s\" />\n" "$(xml_escape "${class}")" "$(xml_escape "${name}")" "$(milliseconds_to_seconds "${test_exec_time}")"
   else
     printf "    <testcase classname=\"%s\" name=\"%s\" time=\"%s\">\n" "$(xml_escape "${class}")" "$(xml_escape "${name}")" "$(milliseconds_to_seconds "${test_exec_time}")"
-    if [[ -n "$_system_out_log" ]]; then
+    if [[ -n "${_system_out_log}" ]]; then
       printf "        <system-out>%s</system-out>\n" "$(xml_escape "${_system_out_log}")"
     fi
-    if [[ -n "$_buffer_log" || "$test_result_state" == not_ok ]]; then
+    if [[ -n "${_buffer_log}" || "${test_result_state}" == not_ok ]]; then
       printf "        <failure type=\"failure\">%s</failure>\n" "$(xml_escape "${_buffer_log}")"
     fi
-    if [[ "$test_result_state" == skipped ]]; then
-      printf "        <skipped>%s</skipped>\n" "$(xml_escape "$test_skip_message")"
+    if [[ "${test_result_state}" == skipped ]]; then
+      printf "        <skipped>%s</skipped>\n" "$(xml_escape "${test_skip_message}")"
     fi
     printf "    </testcase>\n"
   fi
@@ -105,11 +105,11 @@ xml_escape() {
   output=${output//\'/\&#39;}
   # remove ANSI Color codes
   local CONTROL_CHAR=$'\033'
-  local REGEX="$CONTROL_CHAR\[[0-9;]+m"
-  while [[ "$output" =~ $REGEX ]]; do
+  local REGEX="${CONTROL_CHAR}\[[0-9;]+m"
+  while [[ "${output}" =~ ${REGEX} ]]; do
       output=${output//${BASH_REMATCH[0]}/}
   done
-  printf "%s" "$output"
+  printf "%s" "${output}"
 }
 
 suite_buffer() {
@@ -141,7 +141,7 @@ flush() {
 }
 
 log() {
-  if [[ -n "$_buffer_log" ]]; then
+  if [[ -n "${_buffer_log}" ]]; then
     _buffer_log="${_buffer_log}
 $1"
   else
@@ -150,7 +150,7 @@ $1"
 }
 
 flush_log() {
-  if [[ -n "$test_result_state" ]]; then
+  if [[ -n "${test_result_state}" ]]; then
     buffer print_test_case
   fi
   _buffer_log=""
@@ -158,7 +158,7 @@ flush_log() {
 }
 
 log_system_out() {
-  if [[ -n "$_system_out_log" ]]; then
+  if [[ -n "${_system_out_log}" ]]; then
     _system_out_log="${_system_out_log}
 $1"
   else
@@ -224,14 +224,14 @@ bats_tap_stream_not_ok() { # <test index> <test name>
 
 bats_tap_stream_comment() { # <comment text without leading '# '> <scope>
   local comment="$1" scope="$2"
-  case "$scope" in
+  case "${scope}" in
   begin)
     # everything that happens between begin and [not] ok is FD3 output from the test
-    log_system_out "$comment"
+    log_system_out "${comment}"
     ;;
   ok)
     # non failed tests can produce FD3 output
-    log_system_out "$comment"
+    log_system_out "${comment}"
     ;;
   *)
     # everything else is considered error output
@@ -244,7 +244,7 @@ bats_tap_stream_suite() { # <file name>
   flush_log
   suite_buffer finish_file
   init_file
-  class="${1/$BASE_PATH/}"
+  class="${1/${BASE_PATH}/}"
 }
 
 bats_tap_stream_unknown() { # <full line>

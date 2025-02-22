@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # shellcheck source=lib/bats-core/tracing.bash
-source "$BATS_ROOT/$BATS_LIBDIR/bats-core/tracing.bash"
+source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/tracing.bash"
 
 # generate a warning report for the parent call's call site
 bats_generate_warning() { # <warning number> [--no-stacktrace] [<printf args for warning string>...]
@@ -12,23 +12,23 @@ bats_generate_warning() { # <warning number> [--no-stacktrace] [<printf args for
     no_stacktrace=1
     shift
   fi
-  if [[ $warning_number =~ [0-9]+ ]] && ((warning_number < ${#BATS_WARNING_SHORT_DESCS[@]})); then
+  if [[ ${warning_number} =~ [0-9]+ ]] && ((warning_number < ${#BATS_WARNING_SHORT_DESCS[@]})); then
     {
-      printf "BW%s: ${BATS_WARNING_SHORT_DESCS[$warning_number]}\n" "${padding:${#warning_number}}${warning_number}" "$@"
-      if [[ -z "$no_stacktrace" ]]; then
+      printf "BW%s: ${BATS_WARNING_SHORT_DESCS[${warning_number}]}\n" "${padding:${#warning_number}}${warning_number}" "$@"
+      if [[ -z "${no_stacktrace}" ]]; then
         bats_capture_stack_trace
         BATS_STACK_TRACE_PREFIX='      ' bats_print_stack_trace "${BATS_DEBUG_LAST_STACK_TRACE[@]}"
       fi
-    } >>"$BATS_WARNING_FILE" 2>&3
+    } >>"${BATS_WARNING_FILE}" 2>&3
   else
-    printf "Invalid Bats warning number '%s'. It must be an integer between 1 and %d." "$warning_number" "$((${#BATS_WARNING_SHORT_DESCS[@]} - 1))" >&2
+    printf "Invalid Bats warning number '%s'. It must be an integer between 1 and %d." "${warning_number}" "$((${#BATS_WARNING_SHORT_DESCS[@]} - 1))" >&2
     exit 1
   fi
 }
 
 # generate a warning if the BATS_GUARANTEED_MINIMUM_VERSION is not high enough
 bats_warn_minimum_guaranteed_version() { # <feature> <minimum required version>
-  if bats_version_lt "$BATS_GUARANTEED_MINIMUM_VERSION" "$2"; then
+  if bats_version_lt "${BATS_GUARANTEED_MINIMUM_VERSION}" "$2"; then
     bats_generate_warning 2 "$1" "$2" "$2"
   fi
 }

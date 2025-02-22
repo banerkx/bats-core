@@ -2,7 +2,7 @@
 set -e
 
 # shellcheck source=lib/bats-core/formatter.bash
-source "$BATS_ROOT/$BATS_LIBDIR/bats-core/formatter.bash"
+source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/formatter.bash"
 
 BASE_PATH=.
 BATS_ENABLE_TIMING=
@@ -22,7 +22,7 @@ done
 
 update_count_column_width() {
   count_column_width=$((${#count} * 2 + 2))
-  if [[ -n "$BATS_ENABLE_TIMING" ]]; then
+  if [[ -n "${BATS_ENABLE_TIMING}" ]]; then
     # additional space for ' in %s sec'
     count_column_width=$((count_column_width + ${#SECONDS} + 8))
   fi
@@ -54,32 +54,32 @@ begin() {
   line_backoff_count=0
   go_to_column 0
   update_count_column_width
-  buffer_with_truncation $((count_column_left - 1)) '   %s' "$name"
+  buffer_with_truncation $((count_column_left - 1)) '   %s' "${name}"
   clear_to_end_of_line
-  go_to_column $count_column_left
-  if [[ -n "$BATS_ENABLE_TIMING" ]]; then
-    buffer "%${#count}s/${count} in %s sec" "$index" "$SECONDS"
+  go_to_column "${count_column_left}"
+  if [[ -n "${BATS_ENABLE_TIMING}" ]]; then
+    buffer "%${#count}s/${count} in %s sec" "${index}" "${SECONDS}"
   else
-    buffer "%${#count}s/${count}" "$index"
+    buffer "%${#count}s/${count}" "${index}"
   fi
   go_to_column 1
 }
 
 finish_test() {
-  move_up $line_backoff_count
+  move_up "${line_backoff_count}"
   go_to_column 0
   buffer "$@"
   if [[ -n "${TIMEOUT-}" ]]; then
     set_color 2
-    if [[ -n "$BATS_ENABLE_TIMING" ]]; then
-      buffer ' [%s (timeout: %s)]' "$TIMING" "$TIMEOUT"
+    if [[ -n "${BATS_ENABLE_TIMING}" ]]; then
+      buffer ' [%s (timeout: %s)]' "${TIMING}" "${TIMEOUT}"
     else
-      buffer ' [timeout: %s]' "$TIMEOUT"
+      buffer ' [timeout: %s]' "${TIMEOUT}"
     fi
   else
-    if [[ -n "$BATS_ENABLE_TIMING" ]]; then
+    if [[ -n "${BATS_ENABLE_TIMING}" ]]; then
       set_color 2
-      buffer ' [%s]' "$TIMING"
+      buffer ' [%s]' "${TIMING}"
     fi
   fi
   advance
@@ -88,30 +88,30 @@ finish_test() {
 
 pass() {
   local TIMING="${1:-}"
-  finish_test ' ✓ %s' "$name"
+  finish_test ' ✓ %s' "${name}"
   test_result=pass
 }
 
 skip() {
   local reason="$1" TIMING="${2:-}"
-  if [[ -n "$reason" ]]; then
-    reason=": $reason"
+  if [[ -n "${reason}" ]]; then
+    reason=": ${reason}"
   fi
-  finish_test ' - %s (skipped%s)' "$name" "$reason"
+  finish_test ' - %s (skipped%s)' "${name}" "${reason}"
   test_result=skip
 }
 
 fail() {
   local TIMING="${1:-}"
   set_color 1 bold
-  finish_test ' ✗ %s' "$name"
+  finish_test ' ✗ %s' "${name}"
   test_result=fail
 }
 
 timeout() {
   local TIMING="${1:-}"
   set_color 3 bold
-  TIMEOUT="${2:-}" finish_test ' ✗ %s' "$name"
+  TIMEOUT="${2:-}" finish_test ' ✗ %s' "${name}"
   test_result=timeout
 }
 
@@ -132,37 +132,37 @@ log() {
 }
 
 summary() {
-  if [ "$failures" -eq 0 ]; then
+  if [ "${failures}" -eq 0 ]; then
     set_color 2 bold
   else
     set_color 1 bold
   fi
 
-  buffer '\n%d test' "$count"
-  if [[ "$count" -ne 1 ]]; then
+  buffer '\n%d test' "${count}"
+  if [[ "${count}" -ne 1 ]]; then
     buffer 's'
   fi
 
-  buffer ', %d failure' "$failures"
-  if [[ "$failures" -ne 1 ]]; then
+  buffer ', %d failure' "${failures}"
+  if [[ "${failures}" -ne 1 ]]; then
     buffer 's'
   fi
 
-  if [[ "$skipped" -gt 0 ]]; then
-    buffer ', %d skipped' "$skipped"
+  if [[ "${skipped}" -gt 0 ]]; then
+    buffer ', %d skipped' "${skipped}"
   fi
 
   if ((timed_out > 0)); then
-    buffer ', %d timed out' "$timed_out"
+    buffer ', %d timed out' "${timed_out}"
   fi
 
   not_run=$((count - passed - failures - skipped - timed_out))
-  if [[ "$not_run" -gt 0 ]]; then
-    buffer ', %d not run' "$not_run"
+  if [[ "${not_run}" -gt 0 ]]; then
+    buffer ', %d not run' "${not_run}"
   fi
 
-  if [[ -n "$BATS_ENABLE_TIMING" ]]; then
-    buffer " in $SECONDS seconds"
+  if [[ -n "${BATS_ENABLE_TIMING}" ]]; then
+    buffer " in ${SECONDS} seconds"
   fi
 
   buffer '\n'
@@ -177,10 +177,10 @@ buffer_with_truncation() {
   # shellcheck disable=SC2059
   printf -v 'string' -- "$@"
 
-  if [[ "${#string}" -gt "$width" ]]; then
+  if [[ "${#string}" -gt "${width}" ]]; then
     buffer '%s...' "${string:0:$((width - 4))}"
   else
-    buffer '%s' "$string"
+    buffer '%s' "${string}"
   fi
 }
 
@@ -218,7 +218,7 @@ set_color() {
   if [[ "${2:-}" == 'bold' ]]; then
     weight=1
   fi
-  buffer '\x1B[%d;%dm' "$((30 + color))" "$weight"
+  buffer '\x1B[%d;%dm' "$((30 + color))" "${weight}"
 }
 
 clear_color() {
@@ -231,18 +231,18 @@ buffer() {
   local content
   # shellcheck disable=SC2059
   printf -v content -- "$@"
-  _buffer+="$content"
+  _buffer+="${content}"
 }
 
 prefix_buffer_with() {
-  local old_buffer="$_buffer"
+  local old_buffer="${_buffer}"
   _buffer=''
   "$@"
-  _buffer="$_buffer$old_buffer"
+  _buffer="${_buffer}${old_buffer}"
 }
 
 flush() {
-  printf '%s' "$_buffer"
+  printf '%s' "${_buffer}"
   _buffer=
 }
 
@@ -304,7 +304,7 @@ bats_tap_stream_not_ok() {
 bats_tap_stream_comment() { # <comment> <scope>
   local scope=$2
   # count the lines we printed after the begin text,
-  if [[ $line_backoff_count -eq 0 && $scope == begin ]]; then
+  if [[ ""${line_backoff_count}"" -eq 0 && ${scope} == begin ]]; then
     # if this is the first line after begin, go down one line
     buffer "\n"
     ((++line_backoff_count)) # prefix-increment to avoid "error" due to returning 0
@@ -320,10 +320,10 @@ bats_tap_stream_suite() {
   line_backoff_count=0
   index=
   # indicate filename for failures
-  local file_name="${1#"$BASE_PATH"}"
-  name="File $file_name"
+  local file_name="${1#"${BASE_PATH}"}"
+  name="File ${file_name}"
   set_color 4 bold
-  buffer "%s\n" "$file_name"
+  buffer "%s\n" "${file_name}"
   clear_color
 }
 
@@ -331,7 +331,7 @@ line_backoff_count=0
 bats_tap_stream_unknown() { # <full line> <scope>
   local scope=$2
   # count the lines we printed after the begin text, (or after suite, in case of syntax errors)
-  if [[ $line_backoff_count -eq 0 && ($scope == begin || $scope == suite) ]]; then
+  if [[ ""${line_backoff_count}"" -eq 0 && (${scope} == begin || ${scope} == suite) ]]; then
     # if this is the first line after begin, go down one line
     buffer "\n"
     ((++line_backoff_count)) # prefix-increment to avoid "error" due to returning 0

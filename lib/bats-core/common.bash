@@ -2,25 +2,25 @@
 
 bats_prefix_lines_for_tap_output() {
   while IFS= read -r line; do
-    printf '# %s\n' "$line" || break # avoid feedback loop when errors are redirected into BATS_OUT (see #353)
+    printf '# %s\n' "${line}" || break # avoid feedback loop when errors are redirected into BATS_OUT (see #353)
   done
-  if [[ -n "$line" ]]; then
-    printf '# %s\n' "$line"
+  if [[ -n "${line}" ]]; then
+    printf '# %s\n' "${line}"
   fi
 }
 
 function bats_replace_filename() {
   local line
   while read -r line; do
-    printf "%s\n" "${line//$BATS_TEST_SOURCE/$BATS_TEST_FILENAME}"
+    printf "%s\n" "${line//${BATS_TEST_SOURCE}/${BATS_TEST_FILENAME}}"
   done
-  if [[ -n "$line" ]]; then
-    printf "%s\n" "${line//$BATS_TEST_SOURCE/$BATS_TEST_FILENAME}"
+  if [[ -n "${line}" ]]; then
+    printf "%s\n" "${line//${BATS_TEST_SOURCE}/${BATS_TEST_FILENAME}}"
   fi
 }
 
 bats_quote_code() { # <var> <code>
-  printf -v "$1" -- "%s%s%s" "$BATS_BEGIN_CODE_QUOTE" "$2" "$BATS_END_CODE_QUOTE"
+  printf -v "$1" -- "%s%s%s" "${BATS_BEGIN_CODE_QUOTE}" "$2" "${BATS_END_CODE_QUOTE}"
 }
 
 bats_check_valid_version() {
@@ -55,13 +55,13 @@ bats_version_lt() { # <version1> <version2>
 bats_require_minimum_version() { # <required version>
   local required_minimum_version=$1
 
-  if bats_version_lt "$BATS_VERSION" "$required_minimum_version"; then
-    printf "BATS_VERSION=%s does not meet required minimum %s\n" "$BATS_VERSION" "$required_minimum_version"
+  if bats_version_lt "${BATS_VERSION}" "${required_minimum_version}"; then
+    printf "BATS_VERSION=%s does not meet required minimum %s\n" "${BATS_VERSION}" "${required_minimum_version}"
     exit 1
   fi
 
-  if bats_version_lt "$BATS_GUARANTEED_MINIMUM_VERSION" "$required_minimum_version"; then
-    BATS_GUARANTEED_MINIMUM_VERSION="$required_minimum_version"
+  if bats_version_lt "${BATS_GUARANTEED_MINIMUM_VERSION}" "${required_minimum_version}"; then
+    BATS_GUARANTEED_MINIMUM_VERSION="${required_minimum_version}"
   fi
 }
 
@@ -82,15 +82,15 @@ bats_binary_search() { # <search-value> <array-name>
   # so start == end means empty search space
   while ((start < end)); do
     mid=$(((start + end) / 2))
-    eval "mid_value=\${${array_name}[$mid]}"
-    if [[ "$mid_value" == "$search_value" ]]; then
+    eval "mid_value=\${${array_name}[${mid}]}"
+    if [[ "${mid_value}" == "${search_value}" ]]; then
       return 0
-    elif [[ "$mid_value" < "$search_value" ]]; then
+    elif [[ "${mid_value}" < "${search_value}" ]]; then
       # This branch excludes equality -> +1 to skip the mid element.
       # This +1 also avoids endless recursion on odd sized search ranges.
       start=$((mid + 1))
     else
-      end=$mid
+      end=${mid}
     fi
   done
 
@@ -105,7 +105,7 @@ bats_sort() { # <result-array-name> <values to sort...>
   shift
 
   if (($# == 0)); then
-    eval "$result_name=()"
+    eval "${result_name}=()"
     return 0
   fi
 
@@ -115,9 +115,9 @@ bats_sort() { # <result-array-name> <values to sort...>
     local current_value="$1"
     shift
     for ((i = ${#sorted_array[@]}; i >= 0; --i)); do # loop over output array from end
-      if (( i == 0 )) || [[ ${sorted_array[i - 1]} < $current_value ]]; then
+      if (( i == 0 )) || [[ ${sorted_array[i - 1]} < ${current_value} ]]; then
         # shift bigger elements one position to the end
-        sorted_array[i]=$current_value
+        sorted_array[i]=${current_value}
         break
       else
         # insert new element at (freed) desired location
@@ -126,7 +126,7 @@ bats_sort() { # <result-array-name> <values to sort...>
     done
   done
 
-  eval "$result_name=(\"\${sorted_array[@]}\")"
+  eval "${result_name}=(\"\${sorted_array[@]}\")"
 }
 
 # check if all search values (must be sorted!) are in the (sorted!) array
@@ -144,11 +144,11 @@ bats_all_in() { # <sorted-array> <sorted search values...>
   for ((i = 1; i <= $#; ++i)); do
     eval "local search_value=${!i}"
     for (( ; haystack_index < haystack_length; ++haystack_index)); do
-      eval "local haystack_value=\${${haystack_array}[$haystack_index]}"
-      if [[ $haystack_value > "$search_value" ]]; then
+      eval "local haystack_value=\${${haystack_array}[${haystack_index}]}"
+      if [[ ${haystack_value} > "${search_value}" ]]; then
         # we passed the location this value would have been at -> not found
         return 1
-      elif [[ $haystack_value == "$search_value" ]]; then
+      elif [[ ${haystack_value} == "${search_value}" ]]; then
         continue 2 # search value found  -> try the next one
       fi
     done
@@ -174,10 +174,10 @@ bats_any_in() { # <sorted-array> <sorted search values>
   for ((i = 1; i <= $#; ++i)); do
     eval "local search_value=${!i}"
     for (( ; haystack_index < haystack_length; ++haystack_index)); do
-      eval "local haystack_value=\${${haystack_array}[$haystack_index]}"
-      if [[ $haystack_value > "$search_value" ]]; then
+      eval "local haystack_value=\${${haystack_array}[${haystack_index}]}"
+      if [[ ${haystack_value} > "${search_value}" ]]; then
         continue 2 # search value not in array! -> try next
-      elif [[ $haystack_value == "$search_value" ]]; then
+      elif [[ ${haystack_value} == "${search_value}" ]]; then
         return 0 # search value found
       fi
     done
@@ -191,7 +191,7 @@ bats_trim() {                                            # <output-variable> <st
   local -r bats_trim_ltrimmed=${2#"${2%%[![:space:]]*}"} # cut off leading whitespace
   # shellcheck disable=SC2034 # used in eval!
   local -r bats_trim_trimmed=${bats_trim_ltrimmed%"${bats_trim_ltrimmed##*[![:space:]]}"} # cut off trailing whitespace
-  eval "$1=\$bats_trim_trimmed"
+  eval "$1=\${bats_trim_trimmed}"
 }
 
 # a helper function to work around unbound variable errors with ${arr[@]} on Bash 3
@@ -227,28 +227,28 @@ bats_format_file_line_reference() { # <output> <file> <line>
 }
 
 bats_format_file_line_reference_comma_line() {
-  printf -v "$output" "%s, line %d" "$@"
+  printf -v "${output}" "%s, line %d" "$@"
 }
 
 bats_format_file_line_reference_colon() {
-  printf -v "$output" "%s:%d" "$@"
+  printf -v "${output}" "%s:%d" "$@"
 }
 
 # approximate realpath without subshell
 bats_approx_realpath() { # <output-variable> <path>
   local output=$1 path=$2
-  if [[ $path != /* ]]; then
-    path="$PWD/$path"
+  if [[ ${path} != /* ]]; then
+    path="${PWD}/${path}"
   fi
   # x/./y -> x/y
   path=${path//\/.\//\/}
-  printf -v "$output" "%s" "$path"
+  printf -v "${output}" "%s" "${path}"
 }
 
 bats_format_file_line_reference_uri() {
   local filename=${1?} line=${2?}
-  bats_approx_realpath filename "$filename"
-  printf -v "$output" "file://%s:%d" "$filename" "$line"
+  bats_approx_realpath filename "${filename}"
+  printf -v "${output}" "file://%s:%d" "${filename}" "${line}"
 }
 
 # execute command with backed up path

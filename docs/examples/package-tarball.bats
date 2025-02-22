@@ -13,14 +13,14 @@ main() {
   bash "${BATS_TEST_DIRNAME}"/package-tarball
 }
 
-@test "fail when \$src_dir and \$dst_tarball are unbound" {
+@test "fail when \${src_dir} and \${dst_tarball} are unbound" {
   unset src_dir dst_tarball
 
   run main
   [ "${status}" -ne 0 ]
 }
 
-@test "fail when \$src_dir is a non-existent directory" {
+@test "fail when \${src_dir} is a non-existent directory" {
   # shellcheck disable=SC2030
   src_dir='not-a-dir'
 
@@ -29,21 +29,21 @@ main() {
 }
 
 # shellcheck disable=SC2016
-@test "pass when \$src_dir directory is empty" {
+@test "pass when \${src_dir} directory is empty" {
   # shellcheck disable=SC2031,SC2030
   rm -rf "${src_dir:?}/*"
 
   run main
-  echo "$output"
+  echo "${output}"
   [ "${status}" -eq 0 ]
 }
 
 # shellcheck disable=SC2016
-@test "files in \$src_dir are added to tar archive" {
+@test "files in \${src_dir} are added to tar archive" {
   run main
   [ "${status}" -eq 0 ]
 
-  run tar tf "$dst_tarball"
+  run tar tf "${dst_tarball}"
   [ "${status}" -eq 0 ]
   [[ "${output}" =~ a ]]
   [[ "${output}" =~ b ]]

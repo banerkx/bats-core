@@ -10,7 +10,7 @@ set -o xtrace   # Display expanded command and arguments       'set -x'
 IFS=$'\n\t'     # Split words on \n\t rather than spaces
 
 main() {
-  tar -czf "$dst_tarball" -C "$src_dir" .
+  tar -czf "${dst_tarball}" -C "${src_dir}" .
 }
 
 main "$@"
