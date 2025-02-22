@@ -223,7 +223,7 @@ function get_newest_commits
       continue
     fi
     pushd "${PWD}" > /dev/null
-    cd "${CLONES_DIR}/${key}"
+    cd "${BATS_LOCAL_REPOS[${key}]}"
     LOCAL_BATS_NEWEST_COMMIT[${key}]="$(git log --pretty=format:"${pretty_format}" 2> /dev/null | grep -v " -${user}$" | head -1 | sed 's/ -.*$//')"
     popd > /dev/null
   done
@@ -253,7 +253,7 @@ function compare_newest_commits
   do
     if [[ "${LOCAL_BATS_NEWEST_COMMIT[${key}]}" != "${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}" ]]
     then
-      log_warning "For local repository [${CLONES_DIR}/${key}] newest commit [${LOCAL_BATS_NEWEST_COMMIT[${key}]}] does not match original repository newest commit [${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}]; original repository url = [${!BATS_FORK_SOURCE_URLS[${key}]}]." "${LINENO}"
+      log_warning "For local repository [${BATS_LOCAL_REPOS[${key}]}] newest commit [${LOCAL_BATS_NEWEST_COMMIT[${key}]}] does not match original repository newest commit [${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}]; original repository url = [${BATS_FORK_SOURCE_URLS[${key}]}]." "${LINENO}"
       if [[ 0 -eq ${stat} ]]
       then
         stat=1
@@ -285,10 +285,22 @@ function set_variables
   BATS_FORK_SOURCE_URLS[bats-mock]="https://github.com/jasonkarns/bats-mock"
   BATS_FORK_SOURCE_URLS[bats-mock-grayhemp]="https://github.com/grayhemp/bats-mock"
 
+  declare -Ag BATS_LOCAL_REPOS
+  local key
+  for key in "${!BATS_FORK_SOURCE_URLS[@]}"
+  do
+    if [[ "bats-core" == "${key}" ]]
+    then
+      BATS_LOCAL_REPOS[${key}]="${BATS_FORKS}"
+    else
+      BATS_LOCAL_REPOS[${key}]="${BATS_FORKS}/${key}"
+    fi
+  done
+
 ################################################################################
 # Original BATS project (now set as read-only).                                #
 ################################################################################
-  BATS_FORK_SOURCE_URLS[bats]="https://github.com/sstephenson/bats"
+##  BATS_FORK_SOURCE_URLS[bats]="https://github.com/sstephenson/bats"
 
   return 0
 }
@@ -325,6 +337,7 @@ function perform_commit_comparisons
   fi
 
   compare_newest_commits
+  stat=${?}
   return "${stat}"
 }
 
