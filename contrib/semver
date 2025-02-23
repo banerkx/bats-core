@@ -298,7 +298,7 @@ function command-compare {
   exit 0
 }
 
-# shellcheck disable=SC2034
+# shellcheck disable=SC2034,SC2317
 function command-get {
   local part version
 
