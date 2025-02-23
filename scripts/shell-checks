@@ -1,0 +1,75 @@
+#!/bin/bash
+
+
+# ${1} - file
+function check_file
+{
+  head -1 "${1}" | grep -Eq "(bats|bash|sh)"
+  if [[ 0 -eq ${?} ]]
+  then
+    scheck "${1}"
+  else
+    local -r base="$(basename "${1}")"
+    local -r ext="${base##*.}"
+    case "${ext}" in
+      bash | sh | bats ) grep -q '^# \+shellcheck \+shell='
+                         if [[ 0 -ne ${?} ]]
+                         then
+                           echo "[${1}] MISSING shellcheck directive"
+                         fi;;
+      *                ) :;;
+    esac
+  fi
+}
+
+# ${1} - directory
+function check_files
+{
+  pushd "${1}" > /dev/null
+  cd "${1}"
+  local -r base="$(basename "${1}")"
+  echo "+++++ BEGIN [${base}] +++++"
+  local file
+  if [[ "bats-core" == "${base}" ]]
+  then
+    while IFS= read -r file
+    do
+      if [[ -z "${file}" ]]
+      then
+        break
+      fi
+      check_file "${file}"
+    done <<< "$(git ls-files | grep -Ev '(\.yml$|\.md$|\.spec$|\.py\.$|\.svg$|\.gitkeep$|\.gitignore$|rst$|json$|\.yaml$|ronn$|\.[0-9]\+$|\.bat$|\.gpg$|\.dist$|Dockerfile$|Makefile$|\.codespellrc$|\.editorconfig$|\.gitattributes$|\.gitmodules$|CODEOWNERS$|Makefile$|\.txt$|\.test$|^bats-assert|^bats-file|^bats-mock|^bats-grayhemp|^bats-support|^scripts/|^man/)')"
+  else
+    while IFS= read -r file
+    do
+      if [[ -z "${file}" ]]
+      then
+        break
+      fi
+      check_file "${file}"
+    done <<< "$(git ls-files | grep -Ev '(\.yml$|\.md$|\.spec$|\.py\.$|\.svg$|\.gitkeep$|\.gitignore$|rst$|json$|\.yaml$|ronn$|\.[0-9]\+$|\.bat$|\.gpg$|\.dist$|Dockerfile$|Makefile$|\.codespellrc$|\.editorconfig$|\.gitattributes$|\.gitmodules$|CODEOWNERS$|Makefile$|\.txt$|\.test$)')"
+  fi
+  echo "+++++  END  [${base}] +++++"
+  echo ''
+  popd > /dev/null
+}
+
+################################################################################
+# "main"                                                                       #
+################################################################################
+declare -r BATS_DIR=${HOME}/git/bats-core
+
+declare -a BATS_LIBS
+BATS_LIBS[${#BATS_LIBS[@]}]=${BATS_DIR}
+BATS_LIBS[${#BATS_LIBS[@]}]=${BATS_DIR}/bats-assert
+BATS_LIBS[${#BATS_LIBS[@]}]=${BATS_DIR}/bats-file
+BATS_LIBS[${#BATS_LIBS[@]}]=${BATS_DIR}/bats-mock
+BATS_LIBS[${#BATS_LIBS[@]}]=${BATS_DIR}/bats-mock-grayhemp
+BATS_LIBS[${#BATS_LIBS[@]}]=${BATS_DIR}/bats-support
+
+cd "${BATS_DIR}"
+for ((i=0; i < ${#BATS_LIBS[@]}; i++))
+do
+  check_files "${BATS_LIBS[${i}]}"
+done

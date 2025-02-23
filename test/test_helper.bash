@@ -1,3 +1,5 @@
+# shellcheck shell=bats
+
 emulate_bats_env() {
   export BATS_CWD="$PWD"
   export BATS_ROOT_PID=$$
