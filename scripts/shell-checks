@@ -7,7 +7,7 @@ function check_file
   head -1 "${1}" | grep -Eq "(bats|bash|sh)"
   if [[ 0 -eq ${?} ]]
   then
-    scheck "${1}"
+    scheck "${1}" | sed 's/^In /vi /;s/\(^vi .* \)\(line [0-9]\+:$\)/\1\n\2/'
   else
     local -r base="$(basename "${1}")"
     local -r ext="${base##*.}"
