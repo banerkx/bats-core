@@ -20,6 +20,16 @@
 | bats-mock grayhemp             | https://github.com/grayhemp/bats-mock bats-mock-grayhemp  | git clone https://github.com/grayhemp/bats-mock bats-mock-grayhemp     |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
 
+Cloning the original repositories:
+cd ${HOME}/git
+git chlone https://github.com/bats-core/bats-core bats-core
+cd bats-core
+git submodule add https://github.com/bats-core/bats-assert
+git submodule add https://github.com/bats-core/bats-file
+git submodule add https://github.com/bats-core/bats-support
+git submodule add https://github.com/jasonkarns/bats-mock
+git submodule add https://github.com/grayhemp/bats-mock bats-mock-grayhemp
+
 
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
 | bats-core fork                 | http://github.com/banerkx/bats-core.git                   | git clone --recurse-submodule http://github.com/banerkx/bats-core.git  |
