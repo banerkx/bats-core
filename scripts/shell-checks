@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # ${1} - file
 # ${2} - module ('.' for ${BATS_DIR})
 function check_file
