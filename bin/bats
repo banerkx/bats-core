@@ -27,7 +27,7 @@ fi
 
 fallback_to_readlinkf_posix() {
   bats_readlinkf() {
-    [ "${1:-}" ] || return 1
+    [ -n "${1:-}" ] || return 1
     max_symlinks=40
     CDPATH='' # to avoid changing to an unexpected directory
 

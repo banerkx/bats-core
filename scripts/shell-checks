@@ -2,12 +2,14 @@
 
 
 # ${1} - file
+# ${2} - module ('.' for ${BATS_DIR})
 function check_file
 {
   head -1 "${1}" | grep -Eq "(bats|bash|sh)"
-  if [[ 0 -eq ${?} ]]
+  local -i stat=${?}
+  if [[ 0 -eq ${stat} ]]
   then
-    scheck "${1}" | sed 's/^In /vi /;s/\(^vi .* \)\(line [0-9]\+:$\)/\1\n\2/'
+    scheck "${1}" | sed "s@^In @vi ${2}/@;s@\(^vi .* \)\(line [0-9]\+:$\)@\1\n\2@"
   else
     local -r base="$(basename "${1}")"
     local -r ext="${base##*.}"
@@ -25,6 +27,7 @@ function check_file
 # ${1} - directory
 function check_files
 {
+  local -r module="$(realpath --relative-to=${BATS_DIR} "${1}")"
   pushd "${1}" > /dev/null
   cd "${1}"
   local -r base="$(basename "${1}")"
@@ -38,7 +41,7 @@ function check_files
       then
         break
       fi
-      check_file "${file}"
+      check_file "${file}" "${module}"
     done <<< "$(git ls-files | grep -Ev '(\.yml$|\.md$|\.spec$|\.py\.$|\.svg$|\.gitkeep$|\.gitignore$|rst$|json$|\.yaml$|ronn$|\.[0-9]\+$|\.bat$|\.gpg$|\.dist$|Dockerfile$|Makefile$|\.codespellrc$|\.editorconfig$|\.gitattributes$|\.gitmodules$|CODEOWNERS$|Makefile$|\.txt$|\.test$|^bats-assert|^bats-file|^bats-mock|^bats-grayhemp|^bats-support|^scripts/|^man/)')"
   else
     while IFS= read -r file
@@ -47,7 +50,7 @@ function check_files
       then
         break
       fi
-      check_file "${file}"
+      check_file "${file}" "${module}"
     done <<< "$(git ls-files | grep -Ev '(\.yml$|\.md$|\.spec$|\.py\.$|\.svg$|\.gitkeep$|\.gitignore$|rst$|json$|\.yaml$|ronn$|\.[0-9]\+$|\.bat$|\.gpg$|\.dist$|Dockerfile$|Makefile$|\.codespellrc$|\.editorconfig$|\.gitattributes$|\.gitmodules$|CODEOWNERS$|Makefile$|\.txt$|\.test$)')"
   fi
   echo "+++++  END  [${base}] +++++"

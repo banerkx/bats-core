@@ -1,7 +1,11 @@
 #!/usr/bin/env bats
 
 setup() {
+# NOTE: BATS_TMPDIR is assigned by BATS.
+# shellcheck disable=SC2154
   export dst_tarball="${BATS_TMPDIR}/dst.tar.gz"
+# NOTE: BATS_TMPDIR is assigned by BATS.
+# shellcheck disable=SC2154
   export src_dir="${BATS_TMPDIR}/src_dir"
 
   rm -rf "${dst_tarball}" "${src_dir}"
@@ -10,6 +14,8 @@ setup() {
 }
 
 main() {
+# NOTE: BATS_TEST_DIRNAME is assigned by BATS.
+# shellcheck disable=SC2154
   bash "${BATS_TEST_DIRNAME}"/package-tarball
 }
 

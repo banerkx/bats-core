@@ -20,6 +20,8 @@ function bats_replace_filename() {
 }
 
 bats_quote_code() { # <var> <code>
+# NOTE: BATS_BEGIN_CODE_QUOTE and BATS_END_CODE_QUOTE are assigned by BATS.
+# shellcheck disable=SC2154
   printf -v "$1" -- "%s%s%s" "${BATS_BEGIN_CODE_QUOTE}" "$2" "${BATS_END_CODE_QUOTE}"
 }
 
@@ -55,6 +57,8 @@ bats_version_lt() { # <version1> <version2>
 bats_require_minimum_version() { # <required version>
   local required_minimum_version=$1
 
+# NOTE: BATS_VERSION is assigned by BATS.
+# shellcheck disable=SC2154
   if bats_version_lt "${BATS_VERSION}" "${required_minimum_version}"; then
     printf "BATS_VERSION=%s does not meet required minimum %s\n" "${BATS_VERSION}" "${required_minimum_version}"
     exit 1

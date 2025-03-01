@@ -10,6 +10,8 @@ set -o xtrace   # Display expanded command and arguments       'set -x'
 IFS=$'\n\t'     # Split words on \n\t rather than spaces
 
 main() {
+# NOTE: Do not known where dst_tarball is assigned.
+# shellcheck disable=SC2154
   tar -czf "${dst_tarball}" -C "${src_dir}" .
 }
 

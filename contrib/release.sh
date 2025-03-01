@@ -157,6 +157,7 @@ parse_arguments() {
       set -xe
       ;;
     -*) usage "${CURRENT_ARG}: unknown option" ;;
+     *) :;;
     esac
     shift
   done

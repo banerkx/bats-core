@@ -149,8 +149,8 @@ function compare-fields {
   local order=$((0))
 
   while true; do
-    [ ${order} -ne 0 ] && {
-      echo ${order}
+    [ "${order}" -ne 0 ] && {
+      echo "${order}"
       return
     }
 
@@ -331,6 +331,7 @@ case $# in
   echo "Unknown command: $*"
   usage-help
   ;;
+* ) :;;
 esac
 
 case $1 in
