@@ -75,5 +75,4 @@ do
     *           ) continue;;
   esac
   sed -i "1i${shell/XXXX/${ext}}" "${file}"
-  exit
 done
