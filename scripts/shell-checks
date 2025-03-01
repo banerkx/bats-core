@@ -5,6 +5,14 @@
 # ${2} - module ('.' for ${BATS_DIR})
 function check_file
 {
+################################################################################
+# If ${1} is an empty file, simply return.                                     #
+################################################################################
+  if [[ ! -s "${1}" ]]
+  then
+    return 0
+  fi
+
   head -1 "${1}" | grep -Eq "(bats|bash|sh)"
   local -i stat=${?}
   if [[ 0 -eq ${stat} ]]
@@ -23,12 +31,13 @@ function check_file
       *                ) :;;
     esac
   fi
+  return 0
 }
 
 # ${1} - directory
 function check_files
 {
-  local -r module="$(realpath --relative-to=${BATS_DIR} "${1}")"
+  local -r module="$(realpath --relative-to="${BATS_DIR}" "${1}")"
   pushd "${1}" > /dev/null
   cd "${1}"
   local -r base="$(basename "${1}")"

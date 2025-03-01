@@ -1,0 +1,79 @@
+#!/bin/bash
+
+files+=" test/fixtures/suite_setup_teardown/error_in_free_code/test.bats"
+files+=" test/fixtures/suite_setup_teardown/error_in_setup_suite/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/error_in_setup_suite/test.bats"
+files+=" test/fixtures/suite_setup_teardown/error_in_teardown_suite/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/error_in_teardown_suite/test.bats"
+files+=" test/fixtures/suite_setup_teardown/exported_vars/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/exported_vars/test.bats"
+files+=" test/fixtures/suite_setup_teardown/failure_in_setup_suite/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/failure_in_setup_suite/test.bats"
+files+=" test/fixtures/suite_setup_teardown/failure_in_teardown_suite/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/failure_in_teardown_suite/test.bats"
+files+=" test/fixtures/suite_setup_teardown/no_failure_no_output/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/no_failure_no_output/test.bats"
+files+=" test/fixtures/suite_setup_teardown/no_setup_suite_function/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/no_setup_suite_function/test.bats"
+files+=" test/fixtures/suite_setup_teardown/non_default_name/setup_suite_non_default.bash"
+files+=" test/fixtures/suite_setup_teardown/non_default_name/test.bats"
+files+=" test/fixtures/suite_setup_teardown/output_with_failure/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/output_with_failure/test.bats"
+files+=" test/fixtures/suite_setup_teardown/pick_up_toplevel/folder1/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/pick_up_toplevel/folder1/test.bats"
+files+=" test/fixtures/suite_setup_teardown/pick_up_toplevel/folder2/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/pick_up_toplevel/folder2/test.bats"
+files+=" test/fixtures/suite_setup_teardown/pick_up_toplevel/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/pick_up_toplevel/test.bats"
+files+=" test/fixtures/suite_setup_teardown/return_nonzero_in_teardown_suite/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/return_nonzero_in_teardown_suite/test.bats"
+files+=" test/fixtures/suite_setup_teardown/skip_in_setup_file.bats"
+files+=" test/fixtures/suite_setup_teardown/stderr_in_setup_teardown_suite/setup_suite.bash"
+files+=" test/fixtures/suite_setup_teardown/stderr_in_setup_teardown_suite/test.bats"
+files+=" test/fixtures/suite_setup_teardown/syntax_error/test.bats"
+files+=" test/fixtures/tagging/BATS_TEST_TAGS.bats"
+files+=" test/fixtures/tagging/tagged.bats"
+files+=" test/fixtures/timeout/sleep2.bats"
+files+=" test/fixtures/trace/failing_complex.bats"
+files+=" test/fixtures/trace/failing_recursive.bats"
+files+=" test/fixtures/warnings/BW01.bats"
+files+=" test/fixtures/warnings/BW01_check_exit_code_is_127.bats"
+files+=" test/fixtures/warnings/BW01_no_exit_code_check_no_exit_code_127.bats"
+files+=" test/fixtures/warnings/BW02.bats"
+files+=" test/fixtures/warnings/BW03/define_setup_suite_in_wrong_file.bats"
+files+=" test/fixtures/warnings/BW03/non_default_setup_suite.bash"
+files+=" test/fixtures/warnings/BW03/suppress_warning.bats"
+files+=" test/run.bats"
+files+=" test/suite.bats"
+files+=" test/suite_setup_teardown.bats"
+files+=" test/tap13-formatter.bats"
+files+=" test/timeout.bats"
+
+cd ..
+declare -r shell='# shellcheck shell=XXXX'
+declare -i lines=0
+for file in ${files}
+do
+  if [[ ! -s "${file}" ]]
+  then
+    continue
+  fi
+  lines=$(wc -l "${file}" | cut -d' ' -f1)
+  if [[ ${lines} -le 1 ]]
+  then
+    continue
+  fi
+  grep -q '^# \+shellcheck \+shell=' "${file}"
+  if [[ 0 -eq ${?} ]]
+  then
+    continue
+  fi
+  base="$(basename "${file}")"
+  ext="${base##*.}"
+  case "${ext}" in
+    bash | bats ) :;;
+    *           ) continue;;
+  esac
+  sed -i "1i${shell/XXXX/${ext}}" "${file}"
+  exit
+done
