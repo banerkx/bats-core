@@ -21,6 +21,8 @@ bats_run_under_shlock() {
 bats_semaphore_setup() {
   export -f bats_semaphore_get_free_slot_count
   export -f bats_semaphore_acquire_while_locked
+# NOTE: BATS_RUN_TMPDIR is assigned by BATS.
+# shellcheck disable=SC2154
   export BATS_SEMAPHORE_DIR="${BATS_RUN_TMPDIR}/semaphores"
 
   if command -v flock >/dev/null; then
@@ -75,6 +77,8 @@ bats_semaphore_acquire_while_locked() {
     while [[ -e "${BATS_SEMAPHORE_DIR}/slot-${slot}" ]]; do
       ((++slot))
     done
+# NOTE: BATS_SEMAPHORE_NUMBER_OF_SLOTS is assigned by BATS.
+# shellcheck disable=SC2154
     if [[ ${slot} -lt ${BATS_SEMAPHORE_NUMBER_OF_SLOTS} ]]; then
       touch "${BATS_SEMAPHORE_DIR}/slot-${slot}" && printf "%d\n" "${slot}" && return 0
     fi

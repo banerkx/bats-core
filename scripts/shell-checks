@@ -14,8 +14,9 @@ function check_file
     local -r base="$(basename "${1}")"
     local -r ext="${base##*.}"
     case "${ext}" in
-      bash | sh | bats ) grep -q '^# \+shellcheck \+shell='
-                         if [[ 0 -ne ${?} ]]
+      bash | sh | bats ) grep -q '^# \+shellcheck \+shell=' "${1}"
+                         stat=${?}
+                         if [[ 0 -ne ${stat} ]]
                          then
                            echo "[${1}] MISSING shellcheck directive"
                          fi;;

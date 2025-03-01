@@ -38,6 +38,8 @@ BATS_VALID_TAG_PATTERN="[-_:[:alnum:]]+"
 BATS_VALID_TAGS_PATTERN="^ *(${BATS_VALID_TAG_PATTERN})?( *, *${BATS_VALID_TAG_PATTERN})* *$"
 
 # shellcheck source=lib/bats-core/common.bash
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2154
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/common.bash"
 
 extract_tags() { # <tag_type/return_var> <tags-string>
@@ -113,6 +115,7 @@ IFS=,
         'file_tags='*)
           extract_tags file_tags "${command#file_tags=}"
           ;;
+          * ) :;;
         esac
       fi
       printf '%s\n' "${line}"

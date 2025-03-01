@@ -5,6 +5,8 @@ args=("$@")
 filter_tags_list=()
 
 # shellcheck source=lib/bats-core/common.bash disable=SC2153 
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2154
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/common.bash"
 # shellcheck source=lib/bats-core/preprocessing.bash
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/preprocessing.bash"
@@ -98,6 +100,8 @@ bats_test_function() {
   local args
   printf -v args '%q ' "$@"
   #echo "Adding test ${line} as '${BATS_TEST_FILENAME}${args}'" >&2
+# NOTE: TESTS_LIST_FILE is assigned by BATS.
+# shellcheck disable=SC2154
   printf "%s\t%s\n" "${BATS_TEST_FILENAME}" "${args}" >> "${TESTS_LIST_FILE}"
 }
 

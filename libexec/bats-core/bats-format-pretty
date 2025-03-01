@@ -2,6 +2,8 @@
 set -e
 
 # shellcheck source=lib/bats-core/formatter.bash
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2154
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/formatter.bash"
 
 BASE_PATH=.
@@ -16,6 +18,7 @@ while [[ "$#" -ne 0 ]]; do
     shift
     normalize_base_path BASE_PATH "$1"
     ;;
+    * ) :;;
   esac
   shift
 done
@@ -126,6 +129,7 @@ log() {
   timeout)
     set_color 3
     ;;
+    * ) :;;
   esac
   buffer '   %s\n' "$1"
   clear_color
@@ -304,7 +308,7 @@ bats_tap_stream_not_ok() {
 bats_tap_stream_comment() { # <comment> <scope>
   local scope=$2
   # count the lines we printed after the begin text,
-  if [[ ""${line_backoff_count}"" -eq 0 && ${scope} == begin ]]; then
+  if [[ "${line_backoff_count}" -eq 0 && ${scope} == begin ]]; then
     # if this is the first line after begin, go down one line
     buffer "\n"
     ((++line_backoff_count)) # prefix-increment to avoid "error" due to returning 0
@@ -331,7 +335,7 @@ line_backoff_count=0
 bats_tap_stream_unknown() { # <full line> <scope>
   local scope=$2
   # count the lines we printed after the begin text, (or after suite, in case of syntax errors)
-  if [[ ""${line_backoff_count}"" -eq 0 && (${scope} == begin || ${scope} == suite) ]]; then
+  if [[ "${line_backoff_count}" -eq 0 && (${scope} == begin || ${scope} == suite) ]]; then
     # if this is the first line after begin, go down one line
     buffer "\n"
     ((++line_backoff_count)) # prefix-increment to avoid "error" due to returning 0

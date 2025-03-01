@@ -22,6 +22,8 @@ trap '' INT
 number_of_printed_log_lines_for_this_test_so_far=0
 
 # shellcheck source=lib/bats-core/formatter.bash
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2154
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/formatter.bash"
 
 bats_tap_stream_plan() {

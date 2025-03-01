@@ -20,6 +20,8 @@ abort() {
 }
 
 # shellcheck source=lib/bats-core/common.bash disable=SC2153
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2154
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/common.bash"
 
 while [[ "$#" -ne 0 ]]; do

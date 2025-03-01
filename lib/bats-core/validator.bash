@@ -23,6 +23,7 @@ bats_test_count_validator() {
       'not ok'*)
         ((++actual_number_of_tests))
         ;;
+        * ) :;;
       esac
     done
     # ... and error if they are not the same

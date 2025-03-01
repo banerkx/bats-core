@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 # shellcheck source=lib/bats-core/common.bash
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2154
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/common.bash"
 
 # set limit such that traces are only captured for calls at the same depth as this function in the calltree
@@ -108,10 +110,10 @@ bats_print_failed_command() {
     BATS_ERROR_SUFFIX=" due to timeout"
   fi
 
-  if [[ ""${BATS_ERROR_STATUS}"" -eq 1 ]]; then
+  if [[ "${BATS_ERROR_STATUS}" -eq 1 ]]; then
     printf 'failed%s\n' "${BATS_ERROR_SUFFIX}"
   else
-    printf 'failed with status %d%s\n' ""${BATS_ERROR_STATUS}"" "${BATS_ERROR_SUFFIX}"
+    printf 'failed with status %d%s\n' "${BATS_ERROR_STATUS}" "${BATS_ERROR_SUFFIX}"
   fi
 }
 
@@ -313,7 +315,7 @@ bats_check_status_from_trap() {
   local status="$?"
   if [[ -z "${BATS_TEST_COMPLETED:-}" ]]; then
     BATS_ERROR_STATUS="${BATS_ERROR_STATUS:-"${status}"}"
-    if [[ ""${BATS_ERROR_STATUS}"" -eq 0 ]]; then
+    if [[ "${BATS_ERROR_STATUS}" -eq 0 ]]; then
       BATS_ERROR_STATUS=1
     fi
     trap - DEBUG
@@ -393,7 +395,7 @@ bats::on_failure() {
 
 bats_error_trap() {
   bats_check_status_from_trap
-  bats::on_failure ""${BATS_ERROR_STATUS}""
+  bats::on_failure "${BATS_ERROR_STATUS}"
 
   # If necessary, undo the most recent stack trace captured by bats_debug_trap.
   # See bats_debug_trap for details.

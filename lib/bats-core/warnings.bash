@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 # shellcheck source=lib/bats-core/tracing.bash
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2154
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/tracing.bash"
 
 # generate a warning report for the parent call's call site
@@ -13,6 +15,8 @@ bats_generate_warning() { # <warning number> [--no-stacktrace] [<printf args for
     shift
   fi
   if [[ ${warning_number} =~ [0-9]+ ]] && ((warning_number < ${#BATS_WARNING_SHORT_DESCS[@]})); then
+# NOTE: BATS_WARNING_FILE is assigned by BATS.
+# shellcheck disable=SC2154
     {
       printf "BW%s: ${BATS_WARNING_SHORT_DESCS[${warning_number}]}\n" "${padding:${#warning_number}}${warning_number}" "$@"
       if [[ -z "${no_stacktrace}" ]]; then

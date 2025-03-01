@@ -39,6 +39,8 @@ setup() {
 }
 
 @test "empty test file runs zero tests" {
+# NOTE: FIXTURE_ROOT is assigned by BATS.
+# shellcheck disable=SC2154
   reentrant_run bats "${FIXTURE_ROOT}/empty.bats"
   [ "${status}" -eq 0 ]
   [ "${output}" = "1..0" ]
@@ -88,6 +90,8 @@ setup() {
   [ "${status}" -eq 1 ]
   [ "${lines[0]}" = '1..1' ]
   [ "${lines[1]}" = 'not ok 1 a failing test' ]
+# NOTE: RELATIVE_FIXTURE_ROOT is assigned by BATS.
+# shellcheck disable=SC2154
   [ "${lines[2]}" = "# (in test file ${RELATIVE_FIXTURE_ROOT}/failing.bats, line 4)" ]
   [ "${lines[3]}" = "#   \`eval \"( exit \${STATUS:-1} )\"' failed" ]
 }
@@ -153,6 +157,8 @@ setup() {
   unset BATS_NUMBER_OF_PARALLEL_JOBS BATS_NO_PARALLELIZE_ACROSS_FILES
 
   # shellcheck disable=SC2031,SC2030
+# NOTE: BATS_TEST_TMPDIR is assigned by BATS.
+# shellcheck disable=SC2154
   export BATS_TEST_SUITE_TMPDIR="${BATS_TEST_TMPDIR}"
   # shellcheck disable=SC2030
   REENTRANT_RUN_PRESERVE+=(BATS_TEST_SUITE_TMPDIR)
@@ -369,6 +375,8 @@ setup() {
     "BATS_NO_PARALLELIZE_ACROSS_FILES=${BATS_NO_PARALLELIZE_ACROSS_FILES:-}" \
     "BATS_NUMBER_OF_PARALLEL_JOBS=${BATS_NUMBER_OF_PARALLEL_JOBS:-}" \
     SHELLOPTS=nounset \
+# NOTE: BATS_ROOT is assigned by BATS.
+# shellcheck disable=SC2154
     "${BATS_ROOT}/bin/bats" "${FIXTURE_ROOT}/unofficial_bash_strict_mode.bats"
   if [[ "${status}" -ne 0 || "${lines[1]}" != "${expected}" ]]; then
     cat <<END_OF_ERR_MSG
@@ -576,6 +584,8 @@ END_OF_ERR_MSG
 
 @test "test count validator catches mismatch and returns non zero" {
   # shellcheck source=lib/bats-core/validator.bash
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2154
   source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/validator.bash"
   export -f bats_test_count_validator
   reentrant_run bash -c "echo $'1..1\n' | bats_test_count_validator"
@@ -617,6 +627,8 @@ END_OF_ERR_MSG
 
 @test "each file is evaluated n+1 times" {
   # shellcheck disable=SC2031,SC2030
+# NOTE: BATS_TEST_NAME is assigned by BATS.
+# shellcheck disable=SC2154
   export TEMPFILE="${BATS_TEST_TMPDIR}/${BATS_TEST_NAME}.log"
   reentrant_run bats "${FIXTURE_ROOT}/evaluation_count/"
 
@@ -708,6 +720,8 @@ END_OF_ERR_MSG
 
 @test "run should exit if tmpdir exist" {
   local dir
+# NOTE: BATS_RUN_TMPDIR is assigned by BATS.
+# shellcheck disable=SC2154
   dir=$(mktemp -d "${BATS_RUN_TMPDIR}/BATS_RUN_TMPDIR_TEST.XXXXXX")
   reentrant_run bats --tempdir "${dir}" "${FIXTURE_ROOT}/passing.bats"
   [ "${status}" -eq 1 ]
@@ -775,6 +789,8 @@ END_OF_ERR_MSG
 
   load 'concurrent-coordination'
   # shellcheck disable=SC2031,SC2030
+# NOTE: BATS_SUITE_TMPDIR is assigned by BATS.
+# shellcheck disable=SC2154
   export SINGLE_USE_LATCH_DIR="${BATS_SUITE_TMPDIR}"
   # we cannot use run for a background task, so we have to store the output for later
   bats "${FIXTURE_ROOT}/hang_in_test.bats" --tap >"${TEMPFILE}" 2>&1 & # don't block execution, or we cannot send signals
@@ -1039,7 +1055,11 @@ END_OF_ERR_MSG
 
 @test "BATS_RUN_COMMAND: test content of variable" {
   run bats -v
+# NOTE: BATS_RUN_COMMAND is assigned by BATS.
+# shellcheck disable=SC2154
   [[ "${BATS_RUN_COMMAND}" == "bats -v" ]]
+# NOTE: BATS_TEST_DESCRIPTION is assigned by BATS.
+# shellcheck disable=SC2154
   run bats "${BATS_TEST_DESCRIPTION}"
   echo "${BATS_RUN_COMMAND}"
   [[ "${BATS_RUN_COMMAND}" == "bats BATS_RUN_COMMAND: test content of variable" ]]

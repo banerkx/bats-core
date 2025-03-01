@@ -62,7 +62,8 @@ fi
 export BATS_TEST_FILENAME="${filename}"
 
 # shellcheck source=lib/bats-core/preprocessing.bash
-# shellcheck disable=SC2153
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2153,SC2154
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/preprocessing.bash"
 
 bats_run_setup_file() {
@@ -174,7 +175,7 @@ bats_file_exit_trap() {
     bats_generate_warning 3 --no-stacktrace "${BATS_TEST_FILENAME}"
   fi
 
-  exit ""${bats_exec_file_status}""
+  exit "${bats_exec_file_status}"
 }
 
 function setup_file() {
@@ -229,6 +230,8 @@ bats_run_test_with_retries() { # <args>
   local status=0
   local should_try_again=1 try_number
   for ((try_number = 1; should_try_again; ++try_number)); do
+# NOTE: BATS_LIBEXEC is are assigned by BATS.
+# shellcheck disable=SC2154
     if "${BATS_LIBEXEC}/bats-exec-test" "$@" "${try_number}"; then
       should_try_again=0
     else
@@ -257,7 +260,7 @@ bats_run_tests_in_parallel() {
   local test_number_in_file=0 test_number_in_suite=${BATS_FILE_FIRST_TEST_NUMBER_IN_SUITE}
   for test_name in "${tests_to_run[@]}"; do
     # Only handle non-empty lines
-    if [[ ${test_name} ]]; then
+    if [[ -n "${test_name}" ]]; then
       ((++test_number_in_suite))
       ((++test_number_in_file))
       mkdir -p "${output_folder}/${test_number_in_suite}"
@@ -300,9 +303,11 @@ bats_read_tests_list_file() {
 bats_run_tests() {
   bats_exec_file_status=0
   # TODO: this does not seem to be used anymore?
-  if [[ "${BATS_RUN_TESTS_SKIPPED-}" ]]; then
+  if [[ -n "${BATS_RUN_TESTS_SKIPPED}" ]]; then
     # shellcheck disable=SC2317
     bats_test_begin() {
+# NOTE: BATS_RUN_TESTS_SKIPPED_REASON is are assigned by BATS.
+# shellcheck disable=SC2154
       printf "ok %d %s # skip %s\n" "${test_number_in_suite}" "$1" "${BATS_RUN_TESTS_SKIPPED_REASON}"  >&3
       return 1
     }

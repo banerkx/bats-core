@@ -2,6 +2,8 @@
 set -euo pipefail
 
 # shellcheck source=lib/bats-core/formatter.bash
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2154
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/formatter.bash"
 
 BASE_PATH=.
@@ -12,6 +14,7 @@ while [[ "$#" -ne 0 ]]; do
     shift
     normalize_base_path BASE_PATH "$1"
     ;;
+    * ) :;;
   esac
   shift
 done

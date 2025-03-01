@@ -2,6 +2,8 @@
 
 # this must be called for each test file!
 _bats_test_functions_setup() { # <BATS_TEST_NUMBER>
+# NOTE: BATS_TEST_FILENAME is assigned by BATS.
+# shellcheck disable=SC2154
   BATS_TEST_DIRNAME="${BATS_TEST_FILENAME%/*}"
   BATS_TEST_NAMES=()
   # shellcheck disable=SC2034
@@ -9,6 +11,8 @@ _bats_test_functions_setup() { # <BATS_TEST_NUMBER>
 }
 
 # shellcheck source=lib/bats-core/warnings.bash
+# NOTE: BATS_ROOT and BATS_LIBDIR are assigned by BATS.
+# shellcheck disable=SC2154
 source "${BATS_ROOT}/${BATS_LIBDIR}/bats-core/warnings.bash"
 
 # find_in_bats_lib_path echoes the first recognized load path to
@@ -25,6 +29,8 @@ find_in_bats_lib_path() { # <return-var> <library-name>
   local library_name="${2:?}"
 
   local -a bats_lib_paths
+# NOTE: BATS_LIB_PATH is assigned by BATS.
+# shellcheck disable=SC2154
   IFS=: read -ra bats_lib_paths <<<"${BATS_LIB_PATH}"
 
   for path in "${bats_lib_paths[@]}"; do
@@ -171,7 +177,7 @@ bats_separate_lines() { # <output-array> <input-var>
   local -r output_array_name="$1"
   local -r input_var_name="$2"
   local input="${!input_var_name}"
-  if [[ ${keep_empty_lines} ]]; then
+  if [[ -n "${keep_empty_lines}" ]]; then
     local bats_separate_lines_lines=()
     if [[ -n "${input}" ]]; then # avoid getting an empty line for empty input
       # remove one trailing \n if it exists to compensate its addition by <<<
@@ -364,14 +370,17 @@ run() { # [!|-N] [--keep-empty-lines] [--separate-stderr] [--] <command to run..
     ;;
   separate) # splits stderr into own file and fills ${stderr}/${stderr_lines} too
     local bats_run_separate_stderr_file
+# NOTE: BATS_TEST_TMPDIR is assigned by BATS.
+# shellcheck disable=SC2154
     bats_run_separate_stderr_file="$(mktemp "${BATS_TEST_TMPDIR}/separate-stderr-XXXXXX")"
     pre_command=bats_redirect_stderr_into_file
     ;;
+    * ) :;;
   esac
 
   local origFlags="$-"
   set +eET
-  if [[ ${keep_empty_lines} ]]; then
+  if [[ -n "${keep_empty_lines}" ]]; then
     # 'output', 'status', 'lines' are global variables available to tests.
     # preserve trailing newlines by appending . and removing it later
     # shellcheck disable=SC2034
@@ -418,7 +427,7 @@ run() { # [!|-N] [--keep-empty-lines] [--separate-stderr] [--] <command to run..
       fi
     elif [ "${status}" -ne "${expected_rc}" ]; then
       # shellcheck disable=SC2034
-      BATS_ERROR_SUFFIX=", expected exit code ${expected_rc}, got "${status}""
+      BATS_ERROR_SUFFIX=", expected exit code ${expected_rc}, got ${status}"
       bats_run_print_output
       return 1
     fi
@@ -426,7 +435,7 @@ run() { # [!|-N] [--keep-empty-lines] [--separate-stderr] [--] <command to run..
     bats_generate_warning 1 "${BATS_RUN_COMMAND}"
   fi
 
-  if [[ ${BATS_VERBOSE_RUN:-} ]]; then
+  if [[ -n "${BATS_VERBOSE_RUN}" ]]; then
     bats_run_print_output
   fi
   
@@ -511,5 +520,7 @@ bats_test_function() {
 bats_should_retry_test() {
   # test try number starts at 1
   # 0 retries means run only first try
+# NOTE: BATS_TEST_TRY_NUMBER and BATS_TEST_RETRIES are assigned by BATS.
+# shellcheck disable=SC2154
   ((BATS_TEST_TRY_NUMBER <= BATS_TEST_RETRIES))
 }
