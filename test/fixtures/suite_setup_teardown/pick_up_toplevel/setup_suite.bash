@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 setup_suite() {
   echo "${BASH_SOURCE[0]}" setup_suite >>"$LOGFILE"
 }

@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "slow test 1" {
   sleep 3s
 }

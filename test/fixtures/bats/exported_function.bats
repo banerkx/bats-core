@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 if exported_function; then
   a='exported_function'
 fi

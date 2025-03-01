@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "normal test1" {
     true
 }

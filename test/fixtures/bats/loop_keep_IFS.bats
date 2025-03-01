@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 # see issue #89
 loop_func() {
   local search="none one two tree"

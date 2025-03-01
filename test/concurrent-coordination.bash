@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # block until at least <barrier-size> processes of this barrier group entered the barrier
 # once this happened, all latecomers will go through immediately!
 # WARNING: a barrier group consists of all processes with the same barrier name *and* size!

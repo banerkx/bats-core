@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup() {
   load test_helper
   fixtures bats # TODO: move to own folder?

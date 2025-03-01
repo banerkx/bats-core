@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 # This does not fail as expected
 @test "gizmo test" {
   false

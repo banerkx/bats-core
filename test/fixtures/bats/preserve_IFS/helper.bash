@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 check_ifs() {
     if [[ "$IFS" != $' \t\n' ]]; then
         echo "${FUNCNAME[*]}"

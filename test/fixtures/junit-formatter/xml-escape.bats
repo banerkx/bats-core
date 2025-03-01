@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "Successful test with escape characters: \"'<>&[0m (0x1b)" {
   true
 }

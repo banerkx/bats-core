@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup() {
     export PATH
     PATH="$(dirname "$BATS_TEST_FILENAME"):$PATH"

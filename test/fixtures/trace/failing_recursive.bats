@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 fun() {
   echo "$1"
   if [[ $1 -gt 0 ]]; then

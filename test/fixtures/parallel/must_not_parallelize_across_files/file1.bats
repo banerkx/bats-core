@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup() {
   echo "start $BATS_TEST_NAME" >>"$FILE_MARKER"
 }

@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 teardown_file() {
   export POTENTIALLY_LEAKING_VARIABLE="$BATS_TEST_FILENAME"
 }

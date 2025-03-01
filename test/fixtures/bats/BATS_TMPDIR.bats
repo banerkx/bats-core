@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "BATS_TMPDIR is set" {
   [ "${BATS_TMPDIR}" == "${expected:-}" ]
 }

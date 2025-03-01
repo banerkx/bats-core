@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "No tags" {
   :
 }

@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "success writing to stdout" {
   echo "success stdout 1"
   echo "success stdout 2"

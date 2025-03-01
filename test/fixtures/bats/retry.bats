@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 BATS_TEST_RETRIES=2 # means three tries per test
 
 log_caller() {

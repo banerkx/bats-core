@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "no failure prints no output" {
   run echo success
 }

@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "a failing test" {
   true
   true

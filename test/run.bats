@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 load test_helper
 fixtures run
 bats_require_minimum_version 1.5.0

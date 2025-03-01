@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 teardown_file() {
   true
   false

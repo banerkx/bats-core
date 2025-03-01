@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 teardown() {
   load 'test_helper'
 }

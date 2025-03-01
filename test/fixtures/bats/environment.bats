@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "setting a variable" {
   # shellcheck disable=SC2030
   variable=1

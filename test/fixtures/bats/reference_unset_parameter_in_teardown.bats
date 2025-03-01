@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 teardown() {
   set -u
   # shellcheck disable=SC2154

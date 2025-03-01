@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 set -u
 
 # This file is used to test line number offsets. Any changes to lines will affect tests

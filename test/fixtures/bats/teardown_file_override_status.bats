@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 teardown_file() {
   # shellcheck disable=SC2034
   status=${STATUS?}

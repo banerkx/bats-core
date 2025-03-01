@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "run '-4evah' echo hi" {
   run '-4evah' echo hi
 }

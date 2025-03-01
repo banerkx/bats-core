@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 LOG="$BATS_TEST_SUITE_TMPDIR/teardown.log"
 
 teardown() {

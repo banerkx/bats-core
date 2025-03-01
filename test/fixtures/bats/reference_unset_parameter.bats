@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "referencing unset parameter fails" {
   set -u
   # shellcheck disable=SC2154

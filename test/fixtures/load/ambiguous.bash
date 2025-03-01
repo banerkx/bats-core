@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Helper to detect regressions in load's lookup ordering.
 # An exact name match should be prioritized over name.bash.
 

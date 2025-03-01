@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup_file() {
   export SETUP_FILE_VAR="$BATS_TEST_FILENAME"
 }

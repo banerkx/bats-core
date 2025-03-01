@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup_file() {
   export FILE_MARKER
   FILE_MARKER=$(mktemp "${BATS_RUN_TMPDIR}/file_marker.XXXXXX")

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 setup_suite() {
   echo setup_suite stdout
   echo setup_suite stderr >&2

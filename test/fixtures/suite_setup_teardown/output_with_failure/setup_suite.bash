@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 setup_suite() {
   echo setup_suite
   false

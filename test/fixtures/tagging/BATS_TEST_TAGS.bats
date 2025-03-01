@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup() {
     declare -p BATS_TEST_TAGS
 }

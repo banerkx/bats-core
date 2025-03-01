@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 help_me() {
   true
 }

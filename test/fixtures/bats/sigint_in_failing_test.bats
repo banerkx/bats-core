@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "failing" {
   if [[ -z "${DONT_ABORT:-}" ]]; then
     # emulate CTRL-C by sending SIGINT to the whole process group

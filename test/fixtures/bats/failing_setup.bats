@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup() {
   false
 }

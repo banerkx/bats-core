@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup() {
   set -u
   # shellcheck disable=SC2154

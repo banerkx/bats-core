@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup_file() {
   export OTHER_ENV_VARIABLE='my-value'
 }

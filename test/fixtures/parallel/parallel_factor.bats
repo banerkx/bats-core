@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup() {
   load '../../concurrent-coordination'
   echo setup "$BATS_TEST_NUMBER" >>"${MARKER_FILE?}"

@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 teardown() {
   eval "( exit ${STATUS:-1} )"
 }

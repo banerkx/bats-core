@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test 'single-quoted name' {
   true
 }

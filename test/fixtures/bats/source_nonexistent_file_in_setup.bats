@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup() {
   # shellcheck disable=SC1091
   source "nonexistent file"

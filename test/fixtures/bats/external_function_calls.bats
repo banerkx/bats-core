@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 load test_helper
 
 # Test various combinations that may fail line number detection in stack trace

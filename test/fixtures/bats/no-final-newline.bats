@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 @test "error in test" {
   printf 'foo\nbar'
   false

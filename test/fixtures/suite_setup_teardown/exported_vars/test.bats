@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 setup_file() {
   [ "$EXPORTED_VAR" = "$EXPECTED_VALUE" ]
 }

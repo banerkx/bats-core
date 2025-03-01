@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 [ -n "$HELPER_NAME" ] || HELPER_NAME="test_helper"
 load "$HELPER_NAME"
 

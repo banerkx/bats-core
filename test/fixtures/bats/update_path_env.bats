@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 PATH="/usr/local/bin:/usr/bin:/bin"
 
 @test "PATH is reset" {

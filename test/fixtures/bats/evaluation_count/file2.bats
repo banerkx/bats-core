@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 echo "file2" >>"$TEMPFILE"
 
 @test "test 1" {

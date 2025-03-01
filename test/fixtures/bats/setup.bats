@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 LOG="$BATS_TEST_SUITE_TMPDIR/setup.log"
 
 setup() {

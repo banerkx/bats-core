@@ -1,3 +1,4 @@
+# shellcheck shell=bats
 teardown() {
   status=${STATUS?}
   return "${TEARDOWN_RETURN_CODE?}"
