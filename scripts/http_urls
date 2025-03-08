@@ -30,7 +30,6 @@ git submodule add https://github.com/bats-core/bats-support
 git submodule add https://github.com/jasonkarns/bats-mock
 git submodule add https://github.com/grayhemp/bats-mock bats-mock-grayhemp
 
-
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
 | bats-core fork                 | http://github.com/banerkx/bats-core.git                   | git clone --recurse-submodule http://github.com/banerkx/bats-core.git  |
 +--------------------------------+-----------------------------------------------------------+------------------------------------------------------------------------+
