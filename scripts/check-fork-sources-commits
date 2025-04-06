@@ -245,6 +245,18 @@ function print_array
   done | sort | column -s"=" -o"=" -t | sed 's/= /= [/;s/$/]/'
 }
 
+# ${1} - repository key
+function show_update_steps
+{
+  local -r default_branch="${BATS_FORK_DEFAULT_BRANCH[${1}]}"
+  echo "  To update [${1}]:"
+  echo "    cd $(dirname "${PWD/${HOME}/\$\{HOME\}}")/${1}"
+  echo "    git fetch upstream"
+  echo "    git checkout ${default_branch}"
+  echo "    git merge upstream/${default_branch}"
+  echo ''
+}
+
 function compare_newest_commits
 {
   local -i stat=0
@@ -254,6 +266,7 @@ function compare_newest_commits
     if [[ "${LOCAL_BATS_NEWEST_COMMIT[${key}]}" != "${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}" ]]
     then
       log_warning "For local repository [${BATS_LOCAL_REPOS[${key}]}] newest commit [${LOCAL_BATS_NEWEST_COMMIT[${key}]}] does not match original repository newest commit [${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}]; original repository url = [${BATS_FORK_SOURCE_URLS[${key}]}]." "${LINENO}"
+      show_update_steps "${key}"
       if [[ 0 -eq ${stat} ]]
       then
         stat=1
@@ -285,6 +298,8 @@ function set_variables
   BATS_FORK_SOURCE_URLS[bats-mock]="https://github.com/jasonkarns/bats-mock"
   BATS_FORK_SOURCE_URLS[bats-mock-grayhemp]="https://github.com/grayhemp/bats-mock"
 
+  declare -Ag BATS_FORK_DEFAULT_BRANCH
+
   declare -Ag BATS_LOCAL_REPOS
   local key
   for key in "${!BATS_FORK_SOURCE_URLS[@]}"
@@ -295,6 +310,10 @@ function set_variables
     else
       BATS_LOCAL_REPOS[${key}]="${BATS_FORKS}/${key}"
     fi
+################################################################################
+# Looking for either a main branch or a master branch in the remote repository.#
+################################################################################
+    BATS_FORK_DEFAULT_BRANCH[${key}]="$(git ls-remote --heads "${BATS_FORK_SOURCE_URLS[${key}]}" | grep -E "(main|master)$" | sed 's@^.*/@@')"
   done
 
 ################################################################################
@@ -348,6 +367,8 @@ function print_arrays
   print_array BATS_FORK_SOURCE_URLS
   echo ''
   print_array BATS_FORK_SOURCE_NEWEST_COMMIT
+  echo ''
+  print_array BATS_FORK_DEFAULT_BRANCH
   echo ''
   print_array LOCAL_BATS_NEWEST_COMMIT
   echo ''
