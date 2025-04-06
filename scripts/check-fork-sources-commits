@@ -313,7 +313,7 @@ function set_variables
 ################################################################################
 # Looking for either a main branch or a master branch in the remote repository.#
 ################################################################################
-    BATS_FORK_DEFAULT_BRANCH[${key}]="$(git ls-remote --heads "${BATS_FORK_SOURCE_URLS[${key}]}" | grep -E "(main|master)$" | sed 's@^.*/@@')"
+    BATS_FORK_DEFAULT_BRANCH[${key}]="$(git ls-remote --symref "${BATS_FORK_SOURCE_URLS[${key}]}" | head -1 | sed 's@^ref: @@;s@\t.*$@@;s@^.*/@@')"
   done
 
 ################################################################################
