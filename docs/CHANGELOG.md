@@ -99,7 +99,19 @@ The format is based on [Keep a Changelog][kac] and this project adheres to
 
 ## [Unreleased]
 
-### Added
+### Fixed
+
+* unset `output`, `stderr`, `lines`, `stderr_lines` at the start of `run` to avoid crosstalk 
+  between successive invocations (#1105)
+* junit: XML escape fully removes ANSI sequences, e.g. color codes, cursor movements (#1103)
+
+### Documentation
+
+* moved 3rd-party libraries list into wiki (#1078)
+
+## [1.12.0] - 2025-05-18
+
+### Added 
 
 - `bats::on_failure` hook that gets called when a test or `setup*` function fails (#1031)
 
@@ -108,6 +120,7 @@ The format is based on [Keep a Changelog][kac] and this project adheres to
 * increase compatibility with Solaris (#1043)
 * fix `noclobber` breaking `bats-gather-tests` (#1042)
 * fix exiting with `0` despite `bats:focus` when all tests have been filtered out (#1058)
+* remove deprecated ubuntu 20.04 from CI config (#1083)
 
 ### Documentation
 

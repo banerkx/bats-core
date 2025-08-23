@@ -395,6 +395,8 @@ run() { # [!|-N] [--keep-empty-lines] [--separate-stderr] [--] <command to run..
     # shellcheck disable=SC2034
     read -d '' -r stderr <"${bats_run_separate_stderr_file}" || true
     bats_separate_lines stderr_lines stderr
+  else
+    unset stderr stderr_lines
   fi
 
   # shellcheck disable=SC2034
