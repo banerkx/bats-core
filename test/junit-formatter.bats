@@ -8,9 +8,9 @@ TIMESTAMP_REGEX='[0-9]+-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]'
 TESTSUITES_REGEX="<testsuites time=\"${FLOAT_REGEX}\">"
 
 @test "junit formatter with skipped test does not fail" {
-  reentrant_run bats --formatter junit "${FIXTURE_ROOT}/skipped.bats"
-  echo "${output}"
-  [[ "${status}" -eq 0 ]]
+  reentrant_run bats --formatter junit "$FIXTURE_ROOT/skipped.bats"
+  
+  [[ $status -eq 0 ]]
   [[ "${lines[0]}" == '<?xml version="1.0" encoding="UTF-8"?>' ]]
 
   [[ "${lines[1]}" =~ ${TESTSUITES_REGEX} ]]
@@ -52,19 +52,17 @@ TESTSUITES_REGEX="<testsuites time=\"${FLOAT_REGEX}\">"
   esac
   reentrant_run bats --formatter junit "${TEST_FILE_PATH}"
 
-  echo "${output}"
-  [[ "${lines[2]}" == "<testsuite name=\"${ESCAPED_TEST_FILE_NAME}\" tests=\"3\" failures=\"1\" errors=\"0\" skipped=\"1\" time=\""*"\" timestamp=\""*"\" hostname=\""*"\">" ]]
-  [[ "${lines[3]}" == "    <testcase classname=\"${ESCAPED_TEST_FILE_NAME}\" name=\"Successful test with escape characters: &quot;&#39;&lt;&gt;&amp; (0x1b)\" time=\""*"\" />" ]]
-  [[ "${lines[4]}" == "    <testcase classname=\"${ESCAPED_TEST_FILE_NAME}\" name=\"Failed test with escape characters: &quot;&#39;&lt;&gt;&amp; (0x1b)\" "* ]]
-  [[ "${lines[5]}" == '        <failure type="failure">(in test file '*"${ESCAPED_TEST_FILE_NAME}, line 6)" ]]
+  [[ "${lines[2]}" == "<testsuite name=\"$ESCAPED_TEST_FILE_NAME\" tests=\"3\" failures=\"1\" errors=\"0\" skipped=\"1\" time=\""*"\" timestamp=\""*"\" hostname=\""*"\">" ]]
+  [[ "${lines[3]}" == "    <testcase classname=\"$ESCAPED_TEST_FILE_NAME\" name=\"Successful test with escape characters: &quot;&#39;&lt;&gt;&amp; (0x1b)\" time=\""*"\" />" ]]
+  [[ "${lines[4]}" == "    <testcase classname=\"$ESCAPED_TEST_FILE_NAME\" name=\"Failed test with escape characters: &quot;&#39;&lt;&gt;&amp; (0x1b)\" "* ]]
+  [[ "${lines[5]}" == '        <failure type="failure">(in test file '*"$ESCAPED_TEST_FILE_NAME, line 6)" ]]
   [[ "${lines[6]}" == '  `echo &quot;&lt;&gt;&#39;&amp;&quot; &amp;&amp; false&#39; failed'* ]]
   [[ "${lines[9]}" == "    <testcase classname=\"${ESCAPED_TEST_FILE_NAME}\" name=\"Skipped test with escape characters: &quot;&#39;&lt;&gt;&amp; (0x1b)\" time=\""*"\">" ]]
   [[ "${lines[10]}" == "        <skipped>&quot;&#39;&lt;&gt;&amp;</skipped>" ]]
 }
 
 @test "junit formatter: test suites" {
-  reentrant_run bats --formatter junit "${FIXTURE_ROOT}/suite/"
-  echo "${output}"
+  reentrant_run bats --formatter junit "$FIXTURE_ROOT/suite/"
 
   [[ "${lines[0]}" == '<?xml version="1.0" encoding="UTF-8"?>' ]]
   [[ "${lines[1]}" == *"<testsuites "* ]]
@@ -80,7 +78,6 @@ TESTSUITES_REGEX="<testsuites time=\"${FLOAT_REGEX}\">"
 @test "junit formatter: test suites relative path" {
   cd "${FIXTURE_ROOT}"
   reentrant_run bats --formatter junit "suite/"
-  echo "${output}"
 
   [[ "${lines[0]}" == '<?xml version="1.0" encoding="UTF-8"?>' ]]
   [[ "${lines[1]}" == *"<testsuites "* ]]
@@ -94,28 +91,26 @@ TESTSUITES_REGEX="<testsuites time=\"${FLOAT_REGEX}\">"
 }
 
 @test "junit formatter: files with the same name are distinguishable" {
-  reentrant_run bats --formatter junit -r "${FIXTURE_ROOT}/duplicate/"
-  echo "${output}"
-
+  reentrant_run bats --formatter junit -r "$FIXTURE_ROOT/duplicate/"
+  
   [[ "${lines[2]}" == *"<testsuite name=\"first/file1.bats\""* ]]
   [[ "${lines[5]}" == *"<testsuite name=\"second/file1.bats\""* ]]
 }
 
 @test "junit formatter as report formatter creates report.xml" {
-  cd "${BATS_TEST_TMPDIR}" # don't litter sources with output files
-  reentrant_run bats --report-formatter junit "${FIXTURE_ROOT}/suite/"
-  echo "${output}"
+  cd "$BATS_TEST_TMPDIR" # don't litter sources with output files
+  reentrant_run bats --report-formatter junit "$FIXTURE_ROOT/suite/"
+  echo "$output" # duplicate for later comparison
+  
   [[ -e "report.xml" ]]
   run cat "report.xml"
-  echo "${output}"
+  
   [[ "${lines[2]}" == *"<testsuite name=\"file1.bats\" tests=\"1\" failures=\"0\" errors=\"0\" skipped=\"0\""* ]]
   [[ "${lines[5]}" == *"<testsuite name=\"file2.bats\" tests=\"1\" failures=\"0\" errors=\"0\" skipped=\"0\""* ]]
 }
 
 @test "junit does not mark tests with FD 3 output as failed (issue #360)" {
   reentrant_run bats --formatter junit "${FIXTURE_ROOT}/issue_360.bats"
-
-  echo "${output}"
 
   [[ "${lines[2]}" == '<testsuite name="issue_360.bats" '*'>' ]]
   [[ "${lines[3]}" == '    <testcase classname="issue_360.bats" '*'>' ]]
@@ -157,4 +152,22 @@ TESTSUITES_REGEX="<testsuites time=\"${FLOAT_REGEX}\">"
   local stderr='' # silence shellcheck
   reentrant_run -1 --separate-stderr bats --formatter junit "${FIXTURE_ROOT}/../file_setup_teardown/setup_file_failed.bats"
   [ "${stderr}" == "" ]
+}
+
+@test "junit outputs status of last completed test when a test is retried (issue #1149)" {
+  bats_require_minimum_version 1.8.0
+  reentrant_run bats --formatter junit "$FIXTURE_ROOT/issue_1149.bats"
+
+  [[ "${lines[2]}" == '<testsuite name="issue_1149.bats" '*'>' ]]
+  # The first failing (and retried) test has one entry, as expected
+  [[ "${lines[3]}" == '    <testcase classname="issue_1149.bats" name="test fail" '*'>' ]]
+  [[ "${lines[4]}" == "        <failure type=\"failure\">(in test file $RELATIVE_FIXTURE_ROOT/issue_1149.bats, line 7)" ]]
+  [[ "${lines[5]}" == '  `false&#39; failed</failure>' ]]
+  [[ "${lines[6]}" == '    </testcase>' ]]
+  # Second failing test (also retried) should also only have one entry, and that includes the failure message
+  [[ "${lines[7]}" == '    <testcase classname="issue_1149.bats" name="test foobar" '*'>' ]]
+  [[ "${lines[8]}" == "        <failure type=\"failure\">(in test file $RELATIVE_FIXTURE_ROOT/issue_1149.bats, line 11)" ]]
+  [[ "${lines[9]}" == '  `false&#39; failed</failure>' ]]
+  [[ "${lines[10]}" == '    </testcase>' ]]
+  [[ "${lines[11]}" == '</testsuite>' ]]
 }

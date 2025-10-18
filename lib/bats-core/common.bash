@@ -108,6 +108,10 @@ bats_sort() { # <result-array-name> <values to sort...>
   local -r result_name=$1
   shift
 
+  if (($# == 1)) && [[ $1 == "" ]]; then
+    shift # remove leading "" to deal with bash 3 expanding "${empty_array[@]}" to one ""
+  fi
+
   if (($# == 0)); then
     eval "${result_name}=()"
     return 0
@@ -119,12 +123,12 @@ bats_sort() { # <result-array-name> <values to sort...>
     local current_value="$1"
     shift
     for ((i = ${#sorted_array[@]}; i >= 0; --i)); do # loop over output array from end
-      if (( i == 0 )) || [[ ${sorted_array[i - 1]} < ${current_value} ]]; then
-        # shift bigger elements one position to the end
-        sorted_array[i]=${current_value}
+      if (( i == 0 )) || [[ ${sorted_array[i - 1]} < $current_value ]]; then
+        # insert new element at (freed) desired location
+        sorted_array[i]=$current_value
         break
       else
-        # insert new element at (freed) desired location
+        # shift bigger elements one position to the end
         sorted_array[i]=${sorted_array[i - 1]}
       fi
     done
