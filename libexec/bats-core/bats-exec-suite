@@ -304,9 +304,6 @@ else
   BATS_SETUP_SUITE_COMPLETED=1
 fi
 
-<<<<<<< HEAD
-if [[ "${num_jobs}" -gt 1 ]] && [[ -z "${bats_no_parallelize_across_files}" ]]; then
-=======
 if [[ "$num_jobs" -gt 1 ]] && [[ -z "$bats_no_parallelize_across_files" ]]; then
   parallel_flags=(--keep-order --jobs "$num_jobs")
   if (( BATS_ABORT_ON_FAILURE )); then
