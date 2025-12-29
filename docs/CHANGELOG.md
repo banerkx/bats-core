@@ -99,6 +99,14 @@ The format is based on [Keep a Changelog][kac] and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+* junit formatter: 
+  * avoid interference between env and internals (#1175)
+  * remove control characters (\x00-\x08\x0B\x0C\x0E-\x1F) (#1176)
+
+## [1.13.0] - 2025-11-07
+
 ### Added 
 
 * use the [`syntax`](https://docs.docker.com/reference/dockerfile/#syntax) parser directive to declare the Dockerfile syntax version (#1127)
@@ -112,9 +120,13 @@ The format is based on [Keep a Changelog][kac] and this project adheres to
 * junit:
   * XML escape fully removes ANSI sequences, e.g. color codes, cursor movements (#1103)
   * fix retried tests being listed multiple times (#1150)
+  * fix crash when `setup_suite` fails (#1125)
 * remove deprecated windows runner (#1119)
 * renamed `docker-compose.yml` to `compose.yaml` (#1128)
 * `bats_test_function`: don't require `--tags` to be sorted (#1158)
+* fix `BATS_TEST_TIMEOUT` (#1160)
+  * not stopping processes under `run` 
+  * prolonging skipped tests
 
 ### Documentation
 
