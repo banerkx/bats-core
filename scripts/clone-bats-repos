@@ -259,6 +259,18 @@ function clone_bats_core_repos
   if [[ 0 -eq ${stat} ]]
   then
     log_info "Cloned [${BATS_CORE_URL}], branch [${BATS_DEFAULT_BRANCHES[${BATS_CORE}]}], into [${bats_core_repo}]." "${LINENO}"
+    pushd "${PWD}" > /dev/null
+    cd "${bats_core_repo}"
+    git checkout -b "${BATS_LIBS_BRANCH}" > /dev/null 2>&1
+    stat=${?}
+    if [[ 0 -eq ${stat} ]]
+    then
+      log_info "Created new branch [${BATS_LIBS_BRANCH}] in repository [${bats_core_repo}]." "${LINENO}"
+    else
+      log_error "Failed to create new branch [${BATS_LIBS_BRANCH}] in repository [${bats_core_repo}] due to error code [${stat}]. Exiting." "${LINENO}"
+      exit 1
+    fi
+    popd > /dev/null
     echo ''
   else
     log_error "Failed to clone [${BATS_CORE_URL}], branch [${BATS_DEFAULT_BRANCHES[${BATS_CORE}]}], into [${bats_core_repo}] due to error code [${stat}]. Exiting." "${LINENO}"
@@ -317,6 +329,7 @@ function set_variables
   done
 
   declare -rg DEFAULT_LOCAL_BATS_CORE_NAME=bats-core-original
+  declare -rg BATS_LIBS_BRANCH=bats-core-libs
 }
 
 ################################################################################
