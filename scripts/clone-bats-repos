@@ -106,7 +106,7 @@ function log_info
 ################################################################################
 function usage
 {
-  local bats_libs="$(echo "${!BATS_LIB_REPOS[@]}" | tr ' ' '\n' | sort | tr '\n' ' ' | sed 's/ $//')"
+  local bats_libs="$(echo "${!BATS_CORE_LIB_REPOS[@]}" | tr ' ' '\n' | sort | tr '\n' ' ' | sed 's/ $//')"
   cat << EOF
   Clones the bats-core repository and the bats-core libraries
     {${bats_libs// /, }}
@@ -115,7 +115,7 @@ function usage
   -d,--dir  Specifies the directory into which the bats-core repository will
             be cloned. If the directory does not exist, it will be created.
             Required.
-  -n,--name Specifies the local bats-core directory name. Default value is [${DEFAULT_LOCAL_BATS_CORE_NAME}].
+  -n,--name Specifies the local bats-core directory name. Default value is [${BATS_CORE_DEFAULT_LOCAL_NAME}].
             Optional.
   -h,--help Prints this usage information and exits. Takes precedence over all
             other options. Optional.
@@ -182,14 +182,14 @@ function parse_command_line_options
 ################################################################################
   eval set -- "${opts}"
 
-  LOCAL_BATS_CORE_NAME="${DEFAULT_LOCAL_BATS_CORE_NAME}"
+  BATS_CORE_LOCAL_NAME="${BATS_CORE_DEFAULT_LOCAL_NAME}"
   while [[ true ]]
   do
     case ${1} in
       -d | --dir  ) declare -rg REPOS_DIR="${2}"
                     shift 2;;
 
-      -n | --name ) declare -rg LOCAL_BATS_CORE_NAME="${2}"
+      -n | --name ) declare -rg BATS_CORE_LOCAL_NAME="${2}"
                     shift 2;;
 
       -h | --help ) usage 0;;
@@ -225,10 +225,11 @@ function add_submodule
   if [[ 0 -eq ${stat} ]]
   then
     log_info "Added submodule [${1}], branch [${BATS_DEFAULT_BRANCHES[${sub_dir}]}], to [${sub_parent_dir}]." "${LINENO}"
-    ADDED_SUBMODULES+=" ${sub_dir}"
+    BATS_CORE_ADDED_SUBMODULES+=" ${sub_dir}"
     echo ''
   else
-    log_error "Failed to add submodule [${1}], branch [${BATS_DEFAULT_BRANCHES[${sub_dir}]:-UNKNOWN}], to [${2}] due to error code [${stat}]." "${LINENO}"
+    log_error "Failed to add submodule [${1}], branch [${BATS_DEFAULT_BRANCHES[${sub_dir}]:-UNKNOWN}], to [${2}] due to error code [${stat}]. Exiting." "${LINENO}"
+    exit 1
   fi
   popd > /dev/null
 }
@@ -247,7 +248,7 @@ function clone_bats_core_repos
     fi
   fi
 
-  local -r bats_core_repo="${REPOS_DIR}/${LOCAL_BATS_CORE_NAME}"
+  local -r bats_core_repo="${REPOS_DIR}/${BATS_CORE_LOCAL_NAME}"
   if [[ -d "${bats_core_repo}" ]]
   then
     log_error "The bats-core repository [${bats_core_repo}] already exists; it will not be over written. Exiting." "${LINENO}"
@@ -261,13 +262,13 @@ function clone_bats_core_repos
     log_info "Cloned [${BATS_CORE_URL}], branch [${BATS_DEFAULT_BRANCHES[${BATS_CORE}]}], into [${bats_core_repo}]." "${LINENO}"
     pushd "${PWD}" > /dev/null
     cd "${bats_core_repo}"
-    git checkout -b "${BATS_LIBS_BRANCH}" > /dev/null 2>&1
+    git checkout -b "${BATS_CORE_LIBS_BRANCH}" > /dev/null 2>&1
     stat=${?}
     if [[ 0 -eq ${stat} ]]
     then
-      log_info "Created new branch [${BATS_LIBS_BRANCH}] in repository [${bats_core_repo}]." "${LINENO}"
+      log_info "Created new branch [${BATS_CORE_LIBS_BRANCH}] in repository [${bats_core_repo}]." "${LINENO}"
     else
-      log_error "Failed to create new branch [${BATS_LIBS_BRANCH}] in repository [${bats_core_repo}] due to error code [${stat}]. Exiting." "${LINENO}"
+      log_error "Failed to create new branch [${BATS_CORE_LIBS_BRANCH}] in repository [${bats_core_repo}] due to error code [${stat}]. Exiting." "${LINENO}"
       exit 1
     fi
     popd > /dev/null
@@ -278,17 +279,21 @@ function clone_bats_core_repos
   fi
 
   local key
-  for key in $(echo "${!BATS_LIB_REPOS[@]}" | tr ' ' '\n' | sort)
+  for key in $(echo "${!BATS_CORE_LIB_REPOS[@]}" | tr ' ' '\n' | sort)
   do
-    add_submodule "${BATS_LIB_REPOS[${key}]}" "${bats_core_repo}/${key}"
+    add_submodule "${BATS_CORE_LIB_REPOS[${key}]}" "${bats_core_repo}/${key}"
   done
 
-  if [[ -n "${ADDED_SUBMODULES}" ]]
+  if [[ -n "${BATS_CORE_ADDED_SUBMODULES}" ]]
   then
-    ADDED_SUBMODULES="${ADDED_SUBMODULES# }"
+    BATS_CORE_ADDED_SUBMODULES="${BATS_CORE_ADDED_SUBMODULES# }"
     pushd "${PWD}" > /dev/null
     cd "${bats_core_repo}"
-    git commit -m "Added submodules {${ADDED_SUBMODULES// /, }}." > /dev/null
+    git commit -m "Added submodules {${BATS_CORE_ADDED_SUBMODULES// /, }}." > /dev/null
+################################################################################
+# Deleting sample hook files.                                                  #
+################################################################################
+    find .git -path "*/hooks/*" -type f -name "*\.sample" -delete
     popd > /dev/null
   fi
 }
@@ -306,30 +311,29 @@ function set_variables
   local bats_core="$(basename "${BATS_CORE_URL}")"
   declare -rg BATS_CORE=${bats_core%.git}
 
-  declare -Ag BATS_LIB_REPOS
-  BATS_LIB_REPOS[bats-assert]="https://github.com/bats-core/bats-assert"
-  BATS_LIB_REPOS[bats-file]="https://github.com/bats-core/bats-file"
-  BATS_LIB_REPOS[bats-mock-grayhemp]="https://github.com/grayhemp/bats-mock"
-  BATS_LIB_REPOS[bats-mock]="https://github.com/jasonkarns/bats-mock"
-  BATS_LIB_REPOS[bats-support]="https://github.com/bats-core/bats-support"
-
-  declare -g ADDED_SUBMODULES
+  declare -Ag BATS_CORE_LIB_REPOS
+  BATS_CORE_LIB_REPOS[bats-assert]="https://github.com/bats-core/bats-assert"
+  BATS_CORE_LIB_REPOS[bats-file]="https://github.com/bats-core/bats-file"
+  BATS_CORE_LIB_REPOS[bats-mock-grayhemp]="https://github.com/grayhemp/bats-mock"
+  BATS_CORE_LIB_REPOS[bats-mock]="https://github.com/jasonkarns/bats-mock"
+  BATS_CORE_LIB_REPOS[bats-support]="https://github.com/bats-core/bats-support"
 
   declare -Ag BATS_DEFAULT_BRANCHES
   local key
-  for key in "${!BATS_LIB_REPOS[@]}" ${BATS_CORE}
+  for key in "${!BATS_CORE_LIB_REPOS[@]}" ${BATS_CORE}
   do
 ################################################################################
 # Looking for either a main branch or a master branch in the remote repository.#
 ################################################################################
     case "${key}" in
       "${BATS_CORE}" ) add_default_branch "${BATS_CORE}" "${BATS_CORE_URL}";;
-      *              ) add_default_branch "${key}" "${BATS_LIB_REPOS[${key}]}";;
+      *              ) add_default_branch "${key}" "${BATS_CORE_LIB_REPOS[${key}]}";;
     esac
   done
 
-  declare -rg DEFAULT_LOCAL_BATS_CORE_NAME=bats-core-original
-  declare -rg BATS_LIBS_BRANCH=bats-core-libs
+  declare -g BATS_CORE_ADDED_SUBMODULES
+  declare -rg BATS_CORE_DEFAULT_LOCAL_NAME=bats-core-original
+  declare -rg BATS_CORE_LIBS_BRANCH=bats-core-libs
 }
 
 ################################################################################
