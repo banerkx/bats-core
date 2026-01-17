@@ -112,9 +112,11 @@ function usage
     {${bats_libs// /, }}
   into a specified directory.
   Usage: ${SCRIPT} -d,--dir [directory] -h,--help
-  -d,--dir  Specifies the directory into which the bats-core repositories will
+  -d,--dir  Specifies the directory into which the bats-core repository will
             be cloned. If the directory does not exist, it will be created.
             Required.
+  -n,--name Specifies the local bats-core directory name. Default value is [${DEFAULT_LOCAL_BATS_CORE_NAME}].
+            Optional.
   -h,--help Prints this usage information and exits. Takes precedence over all
             other options. Optional.
 EOF
@@ -138,7 +140,7 @@ function parse_command_line_options
 #       argument (for such an argument use "shift 2" instead of "shift 1" in   #
 #       the getopt while loop).                                                #
 ################################################################################
-  local long_options="dir:,help"
+  local long_options="dir:,name:,help"
 
 ################################################################################
 # To get the short options that correspond to the long options, we basically   #
@@ -180,10 +182,14 @@ function parse_command_line_options
 ################################################################################
   eval set -- "${opts}"
 
+  LOCAL_BATS_CORE_NAME="${DEFAULT_LOCAL_BATS_CORE_NAME}"
   while [[ true ]]
   do
     case ${1} in
       -d | --dir  ) declare -rg REPOS_DIR="${2}"
+                    shift 2;;
+
+      -n | --name ) declare -rg LOCAL_BATS_CORE_NAME="${2}"
                     shift 2;;
 
       -h | --help ) usage 0;;
@@ -210,19 +216,19 @@ function parse_command_line_options
 # ${2} - full path to submodule destination directory
 function add_submodule
 {
-  pushd "${PWD}"
+  pushd "${PWD}" > /dev/null
   local -r sub_parent_dir="$(dirname "${2}")"
   cd "${sub_parent_dir}"
   local -r sub_dir="$(basename "${2}")"
-  git submodule add "${1}" "${sub_dir}"
-  local -ir stat=${?}
+  git submodule add -b "${BATS_DEFAULT_BRANCHES[${sub_dir}]}" "${1}" "${sub_dir}" > /dev/null 2>&1
+  local -i stat=${?}
   if [[ 0 -eq ${stat} ]]
   then
-    log_info "Cloned submodule [${1}] into [${2}]." "${LINENO}"
+    log_info "Added submodule [${1}], branch [${BATS_DEFAULT_BRANCHES[${sub_dir}]}], to [${sub_parent_dir}]." "${LINENO}"
+    ADDED_SUBMODULES+=" ${sub_dir}"
     echo ''
   else
-    log_error "Failed to clone submodule [${1}] into [${2}] due to error code [${stat}]. Exiting." "${LINENO}"
-    exit 1
+    log_error "Failed to add submodule [${1}], branch [${BATS_DEFAULT_BRANCHES[${sub_dir}]:-UNKNOWN}], to [${2}] due to error code [${stat}]." "${LINENO}"
   fi
   popd > /dev/null
 }
@@ -241,21 +247,21 @@ function clone_bats_core_repos
     fi
   fi
 
-  local -r bats_core_repo="${REPOS_DIR}/${BATS_CORE}"
+  local -r bats_core_repo="${REPOS_DIR}/${LOCAL_BATS_CORE_NAME}"
   if [[ -d "${bats_core_repo}" ]]
   then
-    log_error "The bats-core repository [${bats_core_repo}] already exists. Exiting."
+    log_error "The bats-core repository [${bats_core_repo}] already exists; it will not be over written. Exiting." "${LINENO}"
     exit 1
   fi
 
-  git clone "${BATS_CORE_URL}" "${bats_core_repo}"
+  git clone -b "${BATS_DEFAULT_BRANCHES[${BATS_CORE}]}" "${BATS_CORE_URL}" "${bats_core_repo}" > /dev/null 2>&1
   stat=${?}
   if [[ 0 -eq ${stat} ]]
   then
-    log_info "Cloned [${BATS_CORE_URL}] into [${bats_core_repo}]." "${LINENO}"
+    log_info "Cloned [${BATS_CORE_URL}], branch [${BATS_DEFAULT_BRANCHES[${BATS_CORE}]}], into [${bats_core_repo}]." "${LINENO}"
     echo ''
   else
-    log_error "Failed to clone [${BATS_CORE_URL}] into [${bats_core_repo}] due to error code [${stat}]. Exiting." "${LINENO}"
+    log_error "Failed to clone [${BATS_CORE_URL}], branch [${BATS_DEFAULT_BRANCHES[${BATS_CORE}]}], into [${bats_core_repo}] due to error code [${stat}]. Exiting." "${LINENO}"
     exit 1
   fi
 
@@ -264,6 +270,22 @@ function clone_bats_core_repos
   do
     add_submodule "${BATS_LIB_REPOS[${key}]}" "${bats_core_repo}/${key}"
   done
+
+  if [[ -n "${ADDED_SUBMODULES}" ]]
+  then
+    ADDED_SUBMODULES="${ADDED_SUBMODULES# }"
+    pushd "${PWD}" > /dev/null
+    cd "${bats_core_repo}"
+    git commit -m "Added submodules {${ADDED_SUBMODULES// /, }}." > /dev/null
+    popd > /dev/null
+  fi
+}
+
+# ${1} - BATS_DEFAULT_BRANCHES array key
+# ${2} - BATS repositlry url
+function add_default_branch
+{
+  BATS_DEFAULT_BRANCHES[${1}]="$(git ls-remote --symref "${2}" | head -1 | sed 's@^ref: @@;s@\t.*$@@;s@^.*/@@')"
 }
 
 function set_variables
@@ -278,6 +300,23 @@ function set_variables
   BATS_LIB_REPOS[bats-mock-grayhemp]="https://github.com/grayhemp/bats-mock"
   BATS_LIB_REPOS[bats-mock]="https://github.com/jasonkarns/bats-mock"
   BATS_LIB_REPOS[bats-support]="https://github.com/bats-core/bats-support"
+
+  declare -g ADDED_SUBMODULES
+
+  declare -Ag BATS_DEFAULT_BRANCHES
+  local key
+  for key in "${!BATS_LIB_REPOS[@]}" ${BATS_CORE}
+  do
+################################################################################
+# Looking for either a main branch or a master branch in the remote repository.#
+################################################################################
+    case "${key}" in
+      "${BATS_CORE}" ) add_default_branch "${BATS_CORE}" "${BATS_CORE_URL}";;
+      *              ) add_default_branch "${key}" "${BATS_LIB_REPOS[${key}]}";;
+    esac
+  done
+
+  declare -rg DEFAULT_LOCAL_BATS_CORE_NAME=bats-core-original
 }
 
 ################################################################################
