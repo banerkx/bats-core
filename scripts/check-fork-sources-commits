@@ -224,7 +224,7 @@ function get_newest_commits
     fi
     pushd "${PWD}" > /dev/null
     cd "${BATS_LOCAL_REPOS[${key}]}"
-    LOCAL_BATS_NEWEST_COMMIT[${key}]="$(git log --pretty=format:"${pretty_format}" 2> /dev/null | grep -Ev "( -${user}$|banerkx)" | head -1 | sed 's/ -.*$//')"
+    LOCAL_BATS_NEWEST_COMMIT[${key}]="$(git log --pretty=format:"${pretty_format}" 2> /dev/null | grep -Ev "( -${user}$|${USER})" | head -1 | sed 's/ -.*$//')"
     popd > /dev/null
   done
 }
