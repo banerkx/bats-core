@@ -250,7 +250,12 @@ function show_update_steps
 {
   local -r default_branch="${BATS_FORK_DEFAULT_BRANCH[${1}]}"
   echo "  To update [${1}]:"
-  echo "    cd $(dirname "${PWD/${HOME}/\$\{HOME\}}")/${1}"
+  if [[ "bats-core" == "${1}" ]]
+  then
+    echo "    cd $(dirname "${PWD/${HOME}/\$\{HOME\}}")"
+  else
+    echo "    cd $(dirname "${PWD/${HOME}/\$\{HOME\}}")/${1}"
+  fi
   echo "    git fetch upstream --tags --force"
   echo "    git checkout ${default_branch}"
   echo "    git merge upstream/${default_branch}"
