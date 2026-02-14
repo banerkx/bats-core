@@ -185,6 +185,13 @@ bats_separate_lines() { # <output-array> <input-var>
   fi
 }
 
+bats_errexit_subshell() { # <command with args...>
+  (
+    set -eET
+    "$@"
+  )
+}
+
 bats_pipe() { # [-N] [--] command0 [ \| command1 [ \| command2 [...]]]
   # This will run each command given, piping them appropriately.
   # Meant to be used in combination with `run` helper to allow piped commands
@@ -307,10 +314,6 @@ bats_pipe() { # [-N] [--] command0 [ \| command1 [ \| command2 [...]]]
 }
 
 run() { # [!|-N] [--keep-empty-lines] [--separate-stderr] [--] <command to run...>
-  # This has to be restored on exit from this function to avoid leaking our trap INT into surrounding code.
-  # Non zero exits won't restore under the assumption that they will fail the test before it can be aborted,
-  # which allows us to avoid duplicating the restore code on every exit path
-  trap bats_interrupt_trap_in_run INT
   local expected_rc=
   local keep_empty_lines=
   local output_case=merged
@@ -350,43 +353,58 @@ run() { # [!|-N] [--keep-empty-lines] [--separate-stderr] [--] <command to run..
     shift
   done
 
-  if [[ -n ${has_flags} ]]; then
+  local saved_traps
+  saved_traps=$(trap -p INT ERR DEBUG)
+  # This has to be restored on return from this function to avoid leaking our trap INT into surrounding code.
+  # Non zero exits won't restore under the assumption that they will fail the test before it can be aborted,
+  # which allows us to avoid duplicating the restore code on every exit path
+  trap bats_interrupt_trap_in_run INT
+  trap - ERR DEBUG
+
+  if [[ -n $has_flags ]]; then
     bats_warn_minimum_guaranteed_version "Using flags on \`run\`" 1.5.0
   fi
 
-  local pre_command=
+  local -a pre_command=()
+  # make sure tmpdir exists in case run() is called outside a @test
+  local tmpdir=${BATS_TEST_TMPDIR:-${BATS_FILE_TMPDIR:-${BATS_RUN_TMPDIR}}}
 
-  case "${output_case}" in
-  merged) # redirects stderr into stdout and fills only ${output}/${lines}
-    pre_command=bats_merge_stdout_and_stderr
+  case "$output_case" in
+  merged) # redirects stderr into stdout and fills only $output/$lines
+    pre_command=(bats_merge_stdout_and_stderr)
     ;;
   separate) # splits stderr into own file and fills ${stderr}/${stderr_lines} too
     local bats_run_separate_stderr_file
-# NOTE: BATS_TEST_TMPDIR is assigned by BATS.
-# shellcheck disable=SC2154
-    bats_run_separate_stderr_file="$(mktemp "${BATS_TEST_TMPDIR}/separate-stderr-XXXXXX")"
-    pre_command=bats_redirect_stderr_into_file
+    bats_run_separate_stderr_file="$(mktemp "${tmpdir}/separate-stderr-XXXXXX")"
+    pre_command=(bats_redirect_stderr_into_file)
     ;;
     * ) :;;
   esac
 
+  if [[ -n "${BATS_RUN_ERREXIT:-}" ]]; then
+    pre_command=(bats_errexit_subshell "${pre_command[@]}")
+  fi
+
   local origFlags="$-"
   set +eET
-  if [[ -n "${keep_empty_lines}" ]]; then
+
+  if [[ $keep_empty_lines ]]; then
     # 'output', 'status', 'lines' are global variables available to tests.
     # preserve trailing newlines by appending . and removing it later
     # shellcheck disable=SC2034
     output="$(
-      "${pre_command}" "$@"
+      "${pre_command[@]}" "$@"
       status=$?
       printf .
-      exit "${status}"
-    )" && status=0 || status=$?
+      exit $status
+    )"
+    status=$?
     output="${output%.}"
   else
     # 'output', 'status', 'lines' are global variables available to tests.
     # shellcheck disable=SC2034
-    output="$("${pre_command}" "$@")" && status=0 || status=$?
+    output="$("${pre_command[@]}" "$@")"
+    status=$?
   fi
 
   bats_separate_lines lines output
@@ -417,12 +435,14 @@ run() { # [!|-N] [--keep-empty-lines] [--separate-stderr] [--] <command to run..
       if [[ "${status}" -eq 0 ]]; then
         BATS_ERROR_SUFFIX=", expected nonzero exit code!"
         bats_run_print_output
+        eval "$saved_traps"
         return 1
       fi
     elif [ "${status}" -ne "${expected_rc}" ]; then
       # shellcheck disable=SC2034
       BATS_ERROR_SUFFIX=", expected exit code ${expected_rc}, got ${status}"
       bats_run_print_output
+      eval "$saved_traps"
       return 1
     fi
   elif [[ "${status}" -eq 127 ]]; then # "command not found"
@@ -432,9 +452,9 @@ run() { # [!|-N] [--keep-empty-lines] [--separate-stderr] [--] <command to run..
   if [[ -n "${BATS_VERBOSE_RUN}" ]]; then
     bats_run_print_output
   fi
-  
+
   # don't leak our trap into surrounding code
-  trap bats_interrupt_trap INT
+  eval "$saved_traps"
 }
 
 setup() {

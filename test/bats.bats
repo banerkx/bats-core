@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+bats_require_minimum_version 1.5.0
+
 setup() {
   load test_helper
   fixtures bats
@@ -1174,6 +1176,27 @@ END_OF_ERR_MSG
   [ -e "${OUTPUT_DIR}/1-test with %2F in %2F name.log" ]
 }
 
+@test "--gather-test-outputs-in works with tests that change directory" {
+  bats_require_minimum_version 1.5.0
+
+  # Test with relative path (the bug case from issue #1132)
+  # The test fixture changes directory, which would break relative paths
+  local relative_output_dir="relative-out"
+  rm -rf "$relative_output_dir"
+
+  reentrant_run -0 bats --gather-test-outputs-in "$relative_output_dir" "$FIXTURE_ROOT/cd_in_test.bats"
+
+  # Verify the output file was created despite the test changing directory
+  [ -f "$relative_output_dir/1-test_that_does_cd.log" ]
+
+  # Verify the content is correct
+  OUTPUT=$(<"$relative_output_dir/1-test_that_does_cd.log")
+  [ "$OUTPUT" == "yey from test directory" ]
+
+  # Cleanup
+  rm -rf "$relative_output_dir"
+}
+
 @test "Tell about missing flock and shlock" {
   if ! command -v parallel; then
     skip "this test requires GNU parallel to be installed"
@@ -1554,8 +1577,8 @@ END_OF_ERR_MSG
 
   [ "${lines[0]}" = 1..1 ]
   [ "${lines[1]}" = 'not ok 1 setup_file failed' ]
-  [ "${lines[2]}" = "# (from function \`setup_file' in test file ${RELATIVE_FIXTURE_ROOT}/failure_callback_setup_file.bats, line 6)" ]
-  [ "${lines[3]}" = "#   \`false' failed" ] 
+  [ "${lines[2]}" = "# (from function \`setup_file' in test file $RELATIVE_FIXTURE_ROOT/failure_callback_setup_file.bats, line 6)" ]
+  [ "${lines[3]}" = "#   \`false' failed" ]
   [ "${lines[4]}" = '# failure callback' ]
   [ ${#lines[@]} -eq 5 ]
 }
@@ -1643,8 +1666,33 @@ END_OF_ERR_MSG
 
   [ "${lines[0]}" = '1..5' ]
   [ "${lines[1]}" = 'not ok 1 failing' ] # the provoking test should always be printed!
-  
+
   # we should not reach the test that creates this file
   # shellcheck disable=SC2314
   ! cat "$MARKER_FILE"
+}
+
+@test "--errexit flag is accepted and sets BATS_RUN_ERREXIT" {
+  reentrant_run bats --tap --errexit "$FIXTURE_ROOT/errexit_env.bats"
+  [ "${lines[0]}" == "1..1" ]
+  [ "${lines[1]}" == "ok 1 check BATS_RUN_ERREXIT is set" ]
+  [ "${#lines[@]}" == 2 ]
+}
+
+@test "--errexit flag behavior differs from default run behavior" {
+  # Test without --errexit flag (default behavior)
+  reentrant_run bats --tap "$FIXTURE_ROOT/errexit_test.bats"
+  [ "${lines[0]}" == "1..2" ]
+  [ "${lines[1]}" == "ok 1 failing function without --errexit continues" ]
+  [ "${lines[2]}" == "ok 2 passing function works" ]
+  [ "${#lines[@]}" == 3 ]
+
+  # Test with --errexit flag - should fail the first test since it expects non-errexit behavior
+  reentrant_run ! bats --tap --errexit "$FIXTURE_ROOT/errexit_test.bats"
+  [ "${lines[0]}" == "1..2" ]
+  [[ "${lines[1]}" =~ "not ok 1 failing function without --errexit continues" ]]
+  [[ "${lines[2]}" =~ "in test file" ]]
+  [[ "${lines[3]}" =~ "Step 2: should not appear with errexit" ]]
+  [ "${lines[4]}" == "ok 2 passing function works" ]
+  [ "${#lines[@]}" == 5 ]
 }
