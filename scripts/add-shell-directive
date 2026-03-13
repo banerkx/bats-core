@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ${1} - file
-# ${2} - file extension (bash or bats)
+# ${2} - shell (bash xor bats)
 function add_shell_directive
 {
   grep -q "^#!.*\b${ext}\b" "${1}"
