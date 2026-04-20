@@ -150,43 +150,6 @@ function log_info_no_stack
   return 0
 }
 
-# ${1} - repository clone location
-# ${2} - cloned repository name
-function delete_local_bats_repo
-{
-  local -i stat=0
-  if [[ -d "${1}/${2}" ]]
-  then
-    pushd "${PWD}" > /dev/null
-    cd "${1}"
-    rm -rf "${2}"
-    popd > /dev/null
-    log_info_no_stack "Deleted local repository [${1}/${2}]."
-  else
-    log_warning "The local repository [${1}/${2}] does not exist." "${LINENO}"
-    stat=1
-  fi
-  echo ''
-  return "${stat}"
-}
-
-function delete_bats_repos
-{
-  local -i stat=0
-  local -i cum_stat=0
-  local key
-  for key in "${!BATS_FORK_SOURCE_URLS[@]}"
-  do
-    delete_local_bats_repo "${CLONES_DIR}" "${key}"
-    stat=${?}
-    if [[ 0 -ne ${stat} ]]
-    then
-      cum_stat=1
-    fi
-  done
-  return "${cum_stat}"
-}
-
 function get_newest_commits
 {
   pushd "${PWD}" > /dev/null
@@ -276,8 +239,6 @@ function set_variables
 ################################################################################
   declare -rg BATS_FORKS=${HOME}/git/bats-core
 
-  declare -rg CLONES_DIR=/tmp
-
   declare -Ag BATS_FORK_SOURCE_URLS
   BATS_FORK_SOURCE_URLS[bats-core]="https://github.com/bats-core/bats-core"
   BATS_FORK_SOURCE_URLS[bats-assert]="https://github.com/bats-core/bats-assert"
@@ -333,13 +294,6 @@ function perform_commit_comparisons
   fi
 
   get_newest_commits
-  stat=${?}
-  if [[ 0 -ne ${stat} ]]
-  then
-    return "${stat}"
-  fi
-
-  delete_bats_repos > /dev/null
   stat=${?}
   if [[ 0 -ne ${stat} ]]
   then
