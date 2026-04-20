@@ -103,6 +103,8 @@ function log_error
 
 # ${1} - error message
 # ${2} - line number (optional)
+# NOTE: Let in for possible future use.
+# shellcheck disable=SC2317
 function log_error_no_stack
 {
   set_color_variables
@@ -120,6 +122,8 @@ function log_warning
 
 # ${1} - warning message
 # ${2} - line number (optional)
+# NOTE: Let in for possible future use.
+# shellcheck disable=SC2317
 function log_warning_no_stack
 {
   set_color_variables
@@ -129,6 +133,8 @@ function log_warning_no_stack
 
 # ${1} - info message
 # ${2} - line number (optional)
+# NOTE: Let in for possible future use.
+# shellcheck disable=SC2317
 function log_info
 {
   log_message "${1}" INFO "${2}"
@@ -142,50 +148,6 @@ function log_info_no_stack
   set_color_variables
   echo "${GREEN}INFO${STOP_COLOR}: ${2:+Line = [${2}] }${1}"
   return 0
-}
-
-# ${1} - repository clone location
-# ${2} - BATS project remote repository url
-# ${3} - cloned repository name
-function clone_bats_repo
-{
-  local -i stat=0
-  pushd "${PWD}" > /dev/null
-  cd "${1}"
-  if [[ ! -d "${1}/${3}" ]]
-  then
-    git clone --depth 1 "${2}" "${3}" > /dev/null 2>&1
-    if [[ 0 -ne ${stat} ]]
-    then
-      log_error "Failed to clone BATS repository [${2}] into [${1}/${3}] due to error code [${stat}]." "${LINENO}"
-    fi
-  else
-    log_warning "The local BATS repository [${1}/${3}] already exists." "${LINENO}"
-    pushd "${PWD}" > /dev/null
-    cd "${3}"
-    local -r url="$(git config --get remote.origin.url 2> /dev/null)"
-    if [[ -n "${url}" ]]
-    then
-      if [[ "${2}" == "${url}" ]]
-      then
-        git pull > /dev/null 2>&1
-        stat=${?}
-        if [[ 0 -ne ${stat} ]]
-        then
-          log_error "Failed to perform a successful 'git pull' in [${1}/${3}] due to error code [${stat}]." "${LINENO}"
-        fi
-      else
-        log_error "The remote repository url [${url}] does not equal the specified url [${2}]; will not perform a 'git pull'." "${LINENO}"
-        stat=1
-      fi
-    else
-      log_error "The remote repository url for [${1}/${3}] is empty." "${LINENO}"
-      stat=1
-    fi
-    popd > /dev/null
-  fi
-  popd > /dev/null
-  return "${stat}"
 }
 
 # ${1} - repository clone location
@@ -208,23 +170,6 @@ function delete_local_bats_repo
   return "${stat}"
 }
 
-function clone_bats_repos
-{
-  local -i stat=0
-  local -i cum_stat=0
-  local key
-  for key in "${!BATS_FORK_SOURCE_URLS[@]}"
-  do
-    clone_bats_repo "${CLONES_DIR}" "${BATS_FORK_SOURCE_URLS[${key}]}" "${key}"
-    stat=${?}
-    if [[ 0 -ne ${stat} ]]
-    then
-      cum_stat=1
-    fi
-  done
-  return "${cum_stat}"
-}
-
 function delete_bats_repos
 {
   local -i stat=0
@@ -244,17 +189,6 @@ function delete_bats_repos
 
 function get_newest_commits
 {
-  local pretty_format="%H"
-  declare -Ag BATS_FORK_SOURCE_NEWEST_COMMIT
-  local key
-  for key in "${!BATS_FORK_SOURCE_URLS[@]}"
-  do
-    pushd "${PWD}" > /dev/null
-    cd "${CLONES_DIR}/${key}"
-    BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]="$(git log -n1 --pretty=format:"${pretty_format}" 2> /dev/null)"
-    popd > /dev/null
-  done
-
   pushd "${PWD}" > /dev/null
   cd "${BATS_FORKS}"
   local user=$(git config --get user.name 2> /dev/null)
@@ -262,6 +196,7 @@ function get_newest_commits
   popd > /dev/null
   pretty_format="%H -%an"
   declare -Ag LOCAL_BATS_NEWEST_COMMIT
+  local key
   for key in "${!BATS_FORK_SOURCE_URLS[@]}"
   do
     if [[ "bats" == "${key}" ]]
@@ -352,6 +287,7 @@ function set_variables
   BATS_FORK_SOURCE_URLS[bats-mock-grayhemp]="https://github.com/grayhemp/bats-mock"
 
   declare -Ag BATS_FORK_DEFAULT_BRANCH
+  declare -Ag BATS_FORK_SOURCE_NEWEST_COMMIT
 
   declare -Ag BATS_LOCAL_REPOS
   local key
@@ -367,6 +303,15 @@ function set_variables
 # Looking for either a main branch or a master branch in the remote repository.#
 ################################################################################
     BATS_FORK_DEFAULT_BRANCH[${key}]="$(git ls-remote --symref "${BATS_FORK_SOURCE_URLS[${key}]}" | head -1 | sed 's@^ref: @@;s@\t.*$@@;s@^.*/@@')"
+################################################################################
+# Getting the most recent commit from the remote fork source repository for    #
+# its default branch.                                                          #
+################################################################################
+    BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]="$(git ls-remote "${BATS_FORK_SOURCE_URLS[${key}]}" "${BATS_FORK_DEFAULT_BRANCH[${key}]}" 2> /dev/null |  sed 's/[ \t].*$//')"
+    if [[ -z "${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}" ]]
+    then
+      log_error "Could not fetch the most recent default branch [${BATS_FORK_DEFAULT_BRANCH[${key}]}] commit for repository [${BATS_FORK_SOURCE_URLS[${key}]}]." "${LINENO}"
+    fi
   done
 
 ################################################################################
@@ -381,13 +326,6 @@ function perform_commit_comparisons
 {
   local -i stat=0
   set_variables
-  stat=${?}
-  if [[ 0 -ne ${stat} ]]
-  then
-    return "${stat}"
-  fi
-
-  clone_bats_repos
   stat=${?}
   if [[ 0 -ne ${stat} ]]
   then
