@@ -2,43 +2,67 @@
 
 declare -r SCRIPT=${0##*/}
 
+function set_color_variables
+{
+  if [[ -v SET_COLOR_VARIABLES ]]
+  then
+    return 0
+  fi
+  declare -rg SET_COLOR_VARIABLES=1
+
+  if [[ -t 1 ]]
+  then
+    if [[ ! -v ESCAPE ]]
+    then
+      declare -rg ESCAPE=""
+    fi
+    if [[ ! -v STOP_COLOR ]]
+    then
+      declare -rg STOP_COLOR="${ESCAPE}[0m"
+    fi
+    if [[ ! -v RED ]]
+    then
+      declare -rg RED="${ESCAPE}[0;31m"
+    fi
+    if [[ ! -v YELLOW ]]
+    then
+      declare -rg YELLOW="${ESCAPE}[1;33m"
+    fi
+    if [[ ! -v GREEN ]]
+    then
+      declare -rg GREEN="${ESCAPE}[0;32m"
+    fi
+  fi
+
+################################################################################
+# In case we are running under git-bash.                                       #
+################################################################################
+  if [[ ! -v HOME && -v USERPROFILE ]]
+  then
+    local home="${USERPROFILE//\\//}"
+    local drive="${home:0:1}"
+    drive="${drive,,}"
+    home="${drive}${home:2}"
+    home=${home:-UNSET}
+    export HOME="/${home}"
+  fi
+  export USER="${USER:-$(basename "${HOME}")}"
+  return 0
+}
+
 # ${1} - message
 # ${2} - message level
 # ${3} - line number (optional)
 function log_message
 {
-  if [[ ! -v ESCAPE ]]
-  then
-    declare -rg ESCAPE=""
-  fi
-
-  if [[ ! -v STOP_COLOR ]]
-  then
-    local -r STOP_COLOR="${ESCAPE}[0m"
-  fi
-
+  set_color_variables
   local message_level=${2}
-  if [[ -t 1 ]]
-  then
-    case ${2} in
-      ERROR   ) if [[ ! -v RED ]]
-                then
-                  declare -rg RED="${ESCAPE}[0;31m"
-                fi
-                message_level=${RED}${message_level}${STOP_COLOR};;
-      WARNING ) if [[ ! -v YELLOW ]]
-                then
-                  declare -rg YELLOW="${ESCAPE}[1;33m"
-                fi
-                message_level=${YELLOW}${message_level}${STOP_COLOR};;
-      INFO    ) if [[ ! -v GREEN ]]
-                then
-                  declare -rg GREEN="${ESCAPE}[0;32m"
-                fi
-                message_level=${GREEN}${message_level}${STOP_COLOR};;
-      *       ) :;;
-    esac
-  fi
+  case ${2} in
+    ERROR   ) message_level=${RED}${message_level}${STOP_COLOR};;
+    WARNING ) message_level=${YELLOW}${message_level}${STOP_COLOR};;
+    INFO    ) message_level=${GREEN}${message_level}${STOP_COLOR};;
+    *       ) :;;
+  esac
 
 ################################################################################
 # NOTE: Want to replace the value of the HOME environment variable with the    #
@@ -77,6 +101,15 @@ function log_error
   return 0
 }
 
+# ${1} - error message
+# ${2} - line number (optional)
+function log_error_no_stack
+{
+  set_color_variables
+  echo "${RED}ERROR${STOP_COLOR}: ${2:+Line = [${2}] }${1}"
+  return 0
+}
+
 # ${1} - warning message
 # ${2} - line number (optional)
 function log_warning
@@ -85,11 +118,29 @@ function log_warning
   return 0
 }
 
+# ${1} - warning message
+# ${2} - line number (optional)
+function log_warning_no_stack
+{
+  set_color_variables
+  echo "${YELLOW}WARNING${STOP_COLOR}: ${2:+Line = [${2}] }${1}"
+  return 0
+}
+
 # ${1} - info message
 # ${2} - line number (optional)
 function log_info
 {
   log_message "${1}" INFO "${2}"
+  return 0
+}
+
+# ${1} - info message
+# ${2} - line number (optional)
+function log_info_no_stack
+{
+  set_color_variables
+  echo "${GREEN}INFO${STOP_COLOR}: ${2:+Line = [${2}] }${1}"
   return 0
 }
 
@@ -104,10 +155,8 @@ function clone_bats_repo
   if [[ ! -d "${1}/${3}" ]]
   then
     git clone --depth 1 "${2}" "${3}" > /dev/null 2>&1
-    if [[ 0 -eq ${stat} ]]
+    if [[ 0 -ne ${stat} ]]
     then
-      log_info "Cloned BATS repository [${2}] into [${1}/${3}]."
-    else
       log_error "Failed to clone BATS repository [${2}] into [${1}/${3}] due to error code [${stat}]." "${LINENO}"
     fi
   else
@@ -121,10 +170,8 @@ function clone_bats_repo
       then
         git pull > /dev/null 2>&1
         stat=${?}
-        if [[ 0 -eq ${stat} ]]
+        if [[ 0 -ne ${stat} ]]
         then
-          log_info "Performed a successful 'git pull' in [${1}/${3}]."
-        else
           log_error "Failed to perform a successful 'git pull' in [${1}/${3}] due to error code [${stat}]." "${LINENO}"
         fi
       else
@@ -138,7 +185,6 @@ function clone_bats_repo
     popd > /dev/null
   fi
   popd > /dev/null
-  echo ''
   return "${stat}"
 }
 
@@ -153,7 +199,7 @@ function delete_local_bats_repo
     cd "${1}"
     rm -rf "${2}"
     popd > /dev/null
-    log_info "Deleted local repository [${1}/${2}]."
+    log_info_no_stack "Deleted local repository [${1}/${2}]."
   else
     log_warning "The local repository [${1}/${2}] does not exist." "${LINENO}"
     stat=1
@@ -282,7 +328,7 @@ function compare_newest_commits
   done
   if [[ 0 -eq ${stat} ]]
   then
-    log_info "All local BATS forks newest commits match original BATS repository newest commits."
+    log_info_no_stack "All local BATS forks newest commits match original BATS repository newest commits."
   fi
   return "${stat}"
 }
@@ -341,7 +387,7 @@ function perform_commit_comparisons
     return "${stat}"
   fi
 
-  clone_bats_repos > /dev/null
+  clone_bats_repos
   stat=${?}
   if [[ 0 -ne ${stat} ]]
   then
@@ -384,6 +430,7 @@ function print_arrays
 ################################################################################
 # "main"                                                                       #
 ################################################################################
+set_color_variables
 perform_commit_comparisons
 exit "${?}"
 
