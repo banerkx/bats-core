@@ -4,6 +4,12 @@ declare -r SCRIPT=${0##*[/\\]}
 
 function set_color_variables
 {
+  if [[ -v SET_COLOR_VARIABLES ]]
+  then
+    return 0
+  fi
+  declare -rg SET_COLOR_VARIABLES=1
+
   if [[ -t 1 ]]
   then
     if [[ ! -v ESCAPE ]]
@@ -28,29 +34,19 @@ function set_color_variables
     fi
   fi
 
-  if [[ ! -v HOME ]]
-  then
 ################################################################################
 # In case we are running under git-bash.                                       #
 ################################################################################
-    export HOME="${HOME:-$(normalize_path "${USERPROFILE}")}"
-################################################################################
-# In case we could not determine HOME.                                         #
-################################################################################
-    HOME=${HOME:-UNSET}
-  fi
-
-  if [[ ! -v USER ]]
+  if [[ ! -v HOME && -v USERPROFILE ]]
   then
-################################################################################
-# In case we are running under git-bash.                                       #
-################################################################################
-    export USER="${USER:-$(basename "${HOME}")}"
-################################################################################
-# In case we could not determine USER.                                         #
-################################################################################
-    USER=${USER:-UNSET}
+    local home="${USERPROFILE//\\//}"
+    local drive="${home:0:1}"
+    drive="${drive,,}"
+    home="${drive}${home:2}"
+    home=${home:-UNSET}
+    export HOME="/${home}"
   fi
+  export USER="${USER:-$(basename "${HOME}")}"
   return 0
 }
 
@@ -59,16 +55,7 @@ function set_color_variables
 # ${3} - line number (optional)
 function log_message
 {
-  if [[ -v GIT_HOOK_LOGGING ]]
-  then
-    return 0
-  fi
-
-  if [[ ! -v SET_COLOR_VARIABLES ]]
-  then
-    declare -rg SET_COLOR_VARIABLES=1
-    set_color_variables
-  fi
+  set_color_variables
   local message_level=${2}
   case ${2} in
     ERROR   ) message_level=${RED}${message_level}${STOP_COLOR};;
@@ -114,6 +101,15 @@ function log_error
   return 0
 }
 
+# ${1} - error message
+# ${2} - line number (optional)
+function log_error_no_stack
+{
+  set_color_variables
+  echo "${RED}ERROR${STOP_COLOR}: ${2:+Line = [${2}] }${1}"
+  return 0
+}
+
 # ${1} - warning message
 # ${2} - line number (optional)
 function log_warning
@@ -122,11 +118,29 @@ function log_warning
   return 0
 }
 
+# ${1} - warning message
+# ${2} - line number (optional)
+function log_warning_no_stack
+{
+  set_color_variables
+  echo "${YELLOW}WARNING${STOP_COLOR}: ${2:+Line = [${2}] }${1}"
+  return 0
+}
+
 # ${1} - info message
 # ${2} - line number (optional)
 function log_info
 {
   log_message "${1}" INFO "${2}"
+  return 0
+}
+
+# ${1} - info message
+# ${2} - line number (optional)
+function log_info_no_stack
+{
+  set_color_variables
+  echo "${GREEN}INFO${STOP_COLOR}: ${2:+Line = [${2}] }${1}"
   return 0
 }
 
