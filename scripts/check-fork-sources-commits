@@ -201,6 +201,7 @@ function show_update_steps
   fi
 ##  echo "    cd ${dir}"
 ##  echo "    git fetch upstream --tags --force"
+##  git fetch origin --force "+refs/tags/*:refs/tags/*"
 ##  echo "    git checkout ${default_branch}"
 ##  echo "    git merge upstream/${default_branch}"
 ##  echo "    cd -"
