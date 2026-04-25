@@ -1,0 +1,452 @@
+# shellcheck shell=bats
+
+################################################################################
+#  Copyright © 2018-2026 K. Banerjee                                           #
+#                                                                              #
+#  This file is part of .git_template.                                         #
+#                                                                              #
+#  .git_template is free software: you can redistribute it and/or modify       #
+#  it under the terms of the GNU General Public License as published by        #
+#  the Free Software Foundation, either version 3 of the License, or           #
+#  (at your option) any later version.                                         #
+#                                                                              #
+#  .git_template is distributed in the hope that it will be useful,            #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+#  GNU General Public License for more details.                                #
+#                                                                              #
+#  You should have received a copy of the GNU General Public License           #
+#  along with .git_template.  If not, see <https://www.gnu.org/licenses/>.     #
+################################################################################
+
+################################################################################
+# To get more BATS information:                                                #
+#   https://bats-core.readthedocs.io/en/stable/                                #
+#   man bats                                                                   #
+#   man 7 bats                                                                 #
+################################################################################
+
+################################################################################
+# To load this file:                                                           #
+#   load /path/to/this/file/utilities-bats                                     #
+################################################################################
+
+function check_bash_version
+{
+################################################################################
+# Minimum major and minor versions.                                            #
+################################################################################
+  local -ir major=5
+  local -ir minor=1
+  if [[ ${BASH_VERSINFO[0]} -lt ${major} ]] || [[ ${BASH_VERSINFO[0]} -eq ${major} && ${BASH_VERSINFO[1]} -lt ${minor} ]]
+  then
+    fail "ERROR: LINE = [${LINENO}] The current bash version [${BASH_VERSION}] does not meet the minimum required bash version [${major}.${minor}]."
+    return 1
+  fi
+  return 0
+}
+
+function set_bats_libs
+{
+  if [[ ! -v BATS_LIBS ]]
+  then
+    local req_bats_libs
+    req_bats_libs+=" bats-assert"
+    req_bats_libs+=" bats-file"
+    req_bats_libs+=" bats-mock"
+    req_bats_libs+=" bats-mock-grayhemp"
+    req_bats_libs+=" bats-support"
+    declare -rg BATS_LIBS=${req_bats_libs# }
+  fi
+  return 0
+}
+
+function check_platform
+{
+  local -i stat=0
+  local -r platform=$(uname)
+  case ${platform} in
+    CYGWIN_NT-*  ) fail "ERROR: LINE = [${LINENO}] This BATS test suite is not meant to be executed under [cygwin]."
+                   stat=1;;
+    MINGW64_NT-* ) fail "ERROR: LINE = [${LINENO}] This BATS test suite is not meant to be executed under [git-bash]."
+                   stat=1;;
+    Darwin       ) fail "ERROR: LINE = [${LINENO}] This BATS test suite is not meant to be executed under [Darwin]."
+                   stat=1;;
+    Linux        ) :;;
+    *            ) fail "ERROR: LINE = [${LINENO}] The platform [${platform}] is not recognized."
+                   stat=1;;
+  esac
+  if [[ 0 -eq ${stat} ]]
+  then
+    check_bash_version
+    stat=${?}
+  fi
+  return "${stat}"
+}
+
+function load_bats_libraries
+{
+  declare -rg MIN_BATS_VERSION=1.11.0
+  bats_require_minimum_version "${MIN_BATS_VERSION}"
+################################################################################
+# The bats_load_library function depends on the environment variable           #
+# BATS_LIB_PATH having been set correctly.                                     #
+################################################################################
+  set_bats_libs
+  local -r bats_lib_path="${BATS_LIB_PATH}:"
+  local -i stat=0
+  local lib
+  for lib in ${BATS_LIBS}
+  do
+# NOTE: Do not want to use globbing nor double quotes.
+# shellcheck disable=SC2010,SC2086
+    ls ${bats_lib_path//:/\/${lib}\/load.bash } 2> /dev/null | grep -q 'load\.bash'
+    if [[ 0 -ne ${?} ]]
+    then
+      echo "ERROR: The required BATS library [${lib}] was not found with BATS_LIB_PATH = [${BATS_LIB_PATH/${HOME}/\$\{HOME\}}]."
+      stat=1
+      continue
+    fi
+    bats_load_library "${lib}"
+  done
+  if [[ 0 -ne ${stat} ]]
+  then
+    exit 1
+  fi
+  return 0
+}
+load_bats_libraries
+
+function set_bats_lib_versions
+{
+################################################################################
+# Associative array to hold the version of each BATS library.                  #
+################################################################################
+  declare -Ag BATS_LIB_VERS
+
+################################################################################
+# Associative array to hold the current branch of each BATS library.           #
+################################################################################
+  declare -Ag BATS_LIB_BRANCHES
+
+  local lib=bats-core
+# NOTE: The following BATS variable is defined by bats-core (so not defined in this file).
+# shellcheck disable=SC2154
+  BATS_LIB_VERS[${lib}]="${BATS_VERSION}"
+  BATS_LIB_VERS[bash]="${BASH_VERSION}"
+
+  if [[ "${lib}" == "$(basename "${BATS_LIB_PATH}")" ]]
+  then
+    BATS_LIB_BRANCHES[${lib}]="$(git --git-dir="${BATS_LIB_PATH}/.git" rev-parse --abbrev-ref HEAD)"
+  else
+    BATS_LIB_BRANCHES[${lib}]="unknown"
+  fi
+
+################################################################################
+# Checking to see if the environment variable BATS_LIB_PATH is non-empty.      #
+################################################################################
+  if [[ -n "${BATS_LIB_PATH}" ]]
+  then
+    local -r command=jq
+    local -r jq_cmd="$(command -v "${command}")"
+    local dir
+################################################################################
+# Iterating over all BATS libraries.                                           #
+################################################################################
+    set_bats_libs
+    for lib in ${BATS_LIBS}
+    do
+      if [[ -z "${BATS_LIB_VERS[${lib}]}" ]]
+      then
+################################################################################
+# Iterating over all directories in ${BATS_LIB_PATH}.                          #
+################################################################################
+        for dir in ${BATS_LIB_PATH//:/ }
+        do
+################################################################################
+# If the jq command is available and a readable package.json file exists, jq   #
+# is used to get the version.                                                  #
+################################################################################
+          if [[ -n "${jq_cmd}" ]] && [[ -r "${dir}/${lib}/package.json" ]]
+          then
+            BATS_LIB_VERS[${lib}]="$(${jq_cmd} -r '.version' "${dir}/${lib}/package.json")"
+            BATS_LIB_BRANCHES[${lib}]="$(git --git-dir="${dir}/${lib}/.git" rev-parse --abbrev-ref HEAD)"
+            break
+################################################################################
+# Otherwise, we try to get a version by trying to retrieve the latest git tag. #
+################################################################################
+          elif [[ -x "${dir}/${lib}" ]]
+          then
+            pushd "${PWD}" > /dev/null
+            cd "${dir}/${lib}"
+            BATS_LIB_VERS[${lib}]="$(git describe --abbrev=0 --tags 2> /dev/null | sed 's/^v//')"
+            BATS_LIB_BRANCHES[${lib}]="$(git branch --show-current 2> /dev/null)"
+            popd > /dev/null
+            break
+          fi
+        done
+        BATS_LIB_VERS[${lib}]=${BATS_LIB_VERS[${lib}]:-unknown}
+        BATS_LIB_BRANCHES[${lib}]=${BATS_LIB_BRANCHES[${lib}]:-unknown}
+      fi
+    done
+  else
+    for lib in ${BATS_LIBS}
+    do
+      BATS_LIB_VERS[${lib}]="unknown"
+      BATS_LIB_BRANCHES[${lib}]="unknown"
+    done
+  fi
+  return 0
+}
+
+function set_bats_lib_most_recent_commits
+{
+################################################################################
+# Associative array to hold the version of each BATS library.                  #
+################################################################################
+  declare -Ag BATS_LIB_COMMITS
+
+################################################################################
+# Checking to see if the environment variable BATS_LIB_PATH is non-empty.      #
+################################################################################
+  if [[ -n "${BATS_LIB_PATH}" ]]
+  then
+    local git_user="$(git config --get user.name)"
+    git_user=${git_user//\./\\.}
+    local -r pretty_format="%an [%ad] [%s]"
+    local -r date_format="%a %b %d %I:%M:%S %p %Z %Y"
+
+    local lib
+    local dir
+################################################################################
+# Iterating over all BATS libraries.                                           #
+################################################################################
+    set_bats_libs
+    for lib in bats-core ${BATS_LIBS}
+    do
+      if [[ "bats-core" == "${lib}" && "bats-core" == "$(basename "${BATS_LIB_PATH}")" ]]
+      then
+        pushd "${PWD}" > /dev/null
+        cd "${BATS_LIB_PATH}"
+        BATS_LIB_COMMITS[${lib}]="$(git log --date=format:"${date_format}" --pretty=format:"${pretty_format}" | grep -Ev "^(${git_user}|${USER}) " | head -1)"
+        popd > /dev/null
+      else
+################################################################################
+# Iterating over all directories in ${BATS_LIB_PATH}.                          #
+################################################################################
+        for dir in ${BATS_LIB_PATH//:/ }
+        do
+################################################################################
+# Otherwise, we try to get a version by trying to retrieve the latest git tag. #
+################################################################################
+          if [[ -x "${dir}/${lib}" ]]
+          then
+            pushd "${PWD}" > /dev/null
+            cd "${dir}/${lib}"
+            BATS_LIB_COMMITS[${lib}]="$(git log --pretty=format:"${pretty_format}" | grep -Ev "^(${git_user}|${USER}) " | head -1)"
+            popd > /dev/null
+            break
+          fi
+        done
+      fi
+      BATS_LIB_COMMITS[${lib}]=${BATS_LIB_COMMITS[${lib}]:-unknown}
+    done
+  fi
+  return 0
+}
+
+function bats_lib_versions
+{
+  echo "# Date/Time                     = [$(date)]"
+  local -r bats_exec="$(type bats | cut -d' ' -f3)"
+  echo "# bats-core Executable          = [${bats_exec/${HOME}/\$\{HOME\}}]"
+  echo "# BATS_LIB_PATH                 = [${BATS_LIB_PATH//${HOME}/\$\{HOME\}}]"
+  echo "# bats-core Minimum Version     = [${MIN_BATS_VERSION}]"
+# NOTE: The following BATS variable is defined by bats-core (so not defined in this file).
+# shellcheck disable=SC2154
+  echo "# bats-core Test File           = [$(basename "${BATS_TEST_FILENAME}")]"
+# NOTE: The following BATS variable is defined by bats-core (so not defined in this file).
+# shellcheck disable=SC2154
+  echo "# bats-core Test File Directory = [${BATS_TEST_DIRNAME/${HOME}/\$\{HOME\}}]"
+
+  set_bats_lib_versions
+  local lib=bash
+  echo "# ${lib} Version = [${BATS_LIB_VERS[${lib}]:-unknown}]"
+  lib=bats-core
+  echo "# ${lib} Version = [${BATS_LIB_VERS[${lib}]:-unknown}] branch: [${BATS_LIB_BRANCHES[${lib}]:-unknown}]"
+
+  set_bats_libs
+  for lib in ${BATS_LIBS}
+  do
+    echo "# ${lib} Version = [${BATS_LIB_VERS[${lib}]:-unknown}] branch: [${BATS_LIB_BRANCHES[${lib}]:-unknown}]"
+  done | sort
+
+  if [[ ! -v GIT_BRANCH ]]
+  then
+    declare -rg GIT_BRANCH="$(git branch --show-current)"
+  fi
+  echo "# git branch = [${GIT_BRANCH}]"
+
+  if [[ ! -v CURRENT_GIT_COMMIT ]]
+  then
+    declare -rg CURRENT_GIT_COMMIT="$(git log --pretty=format:'%H %ad' -n1)"
+  fi
+  echo "# git Commit = [${CURRENT_GIT_COMMIT}]"
+  return 0
+}
+
+function bats_lib_most_recent_commits
+{
+  set_bats_lib_most_recent_commits
+  local lib=bats-core
+  { echo "# ${lib} Commit = [${BATS_LIB_COMMITS[${lib}]}]"; \
+  for lib in "${!BATS_LIB_COMMITS[@]}"
+  do
+    if [[ "bats-core" = "${lib}" ]]
+    then
+      continue
+    fi
+    echo "# ${lib} Commit = [${BATS_LIB_COMMITS[${lib}]}]"
+  done | sort; } | column -s'=' -o'=' -t >&3
+  return 0
+}
+
+function bats_library_versions
+{
+  bats_lib_versions | column -s'=' -o'=' -t >&3
+  local -ir stat=${PIPESTATUS[0]}
+  return "${stat}"
+}
+
+function set_bats_library_paths
+{
+  if [[ 0 -eq ${#BATS_LIB_PATHS[@]} ]]
+  then
+    declare -Ag BATS_LIB_PATHS
+  else
+    return 0
+  fi
+
+  local lib
+  local dir
+################################################################################
+# Checking to see if the environment variable BATS_LIB_PATH is non-empty.      #
+################################################################################
+  if [[ -n "${BATS_LIB_PATH}" ]]
+  then
+################################################################################
+# Iterating over all BATS libraries.                                           #
+################################################################################
+    set_bats_libs
+    for lib in ${BATS_LIBS}
+    do
+################################################################################
+# Iterating over all directories in ${BATS_LIB_PATH}.                          #
+################################################################################
+      for dir in ${BATS_LIB_PATH//:/ }
+      do
+        if [[ -x "${dir}/${lib}" ]]
+        then
+          BATS_LIB_PATHS[${lib}]="${dir}/${lib}"
+        fi
+      done
+      BATS_LIB_PATHS[${lib}]=${BATS_LIB_PATHS[${lib}]:-unknown}
+    done
+  fi
+  return 0
+}
+
+function bats_library_paths
+{
+  set_bats_library_paths
+  print_array BATS_LIB_PATHS
+  return 0
+}
+
+function bats_library_functions
+{
+  set_bats_lib_versions
+  set_bats_library_paths
+################################################################################
+# Getting the functions defined by each of the BATS libraries.                 #
+################################################################################
+  local key
+  set_bats_libs
+  local commit_date
+  for key in ${BATS_LIBS}
+  do
+    echo "#" >&3
+    commit_date=${BATS_LIB_COMMITS[${key}]%%\]*}
+    commit_date="${commit_date#*\[}"
+    echo "# [${key} ${BATS_LIB_VERS[${key}]} [${commit_date}] ${BATS_LIB_PATHS[${key}]/${HOME}/\$\{HOME\}}] Functions" >&3
+    run bash -c "source ${BATS_LIB_PATHS[${key}]}/load.bash; typeset -F | sed 's/-f /-f  /'"
+    assert_success
+    print_int_array lines "${key}"
+  done
+  return 0
+}
+
+# ${1} - array
+# ${2} - array label (optional)
+function print_int_array
+{
+  local -n array=${1}
+  local -r label=${2:-${1}}
+  { echo "# ${label} size = [${#array[@]}]"; \
+    local -i i=0
+    for ((i = 0; i < ${#array[@]}; i++))
+    do
+      echo "# ${label}[${i}] ~ ${array[${i}]/${HOME}/\$\{HOME\}}"
+    done | column -s"~" -o"=" -t; } >&3
+  return 0
+}
+
+# ${1} - associative array
+# ${2} - array label (optional)
+function print_array
+{
+  local -n array=${1}
+  local -r label=${2:-${1}}
+  { echo "${label} size = [${#array[@]}]"; \
+    local key=""
+    for key in "${!array[@]}"
+    do
+      echo "${label}[${key}] ~ [${array[${key}]/${HOME}/\$\{HOME\}}]"
+    done | sort | column -s'~' -o'=' -t; } | sed 's/^/   /' >&3
+  return 0
+}
+
+################################################################################
+# Checks to see if the lines array (from a BATS run command) has exactly one   #
+# element that matches the specified regular expression.                       #
+#                                                                              #
+# ${1} - regular expression used matching                                      #
+# ${2} - error message (optional)                                              #
+################################################################################
+function assert_single_regex_match
+{
+  local -i i
+  local -i count=0
+# NOTE: The lines array is assigned by a BATS "run [command]" so not assigned here.
+# shellcheck disable=SC2154
+  for ((i = 0; i < ${#lines[@]}; i++))
+  do
+    if [[ "${lines[${i}]}" =~ ${1} ]]
+    then
+      count=$((${count} + 1))
+    fi
+  done
+  if [[ 1 -ne ${count} ]]
+  then
+    if [[ -n "${2}" ]]
+    then
+# NOTE: BATS_TEST_NAME is assigned by BATS so not assigned here.
+# shellcheck disable=SC2154
+      local test_name="${BATS_TEST_NAME//_/ }"
+      fail "ERROR: LINE = [${LINENO}] [${test_name#* }] ${2}"
+    else
+      assert_equal "${count}" 1
+    fi
+  fi
+}
+
