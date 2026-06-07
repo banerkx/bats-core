@@ -50,32 +50,9 @@ function set_color_variables
   return 0
 }
 
-# ${1} - message
-# ${2} - message level
-# ${3} - line number (optional)
-function log_message
+function get_stack_trace
 {
-  set_color_variables
-  local message_level=${2}
-  case ${2} in
-    ERROR   ) message_level=${RED}${message_level}${STOP_COLOR};;
-    WARNING ) message_level=${YELLOW}${message_level}${STOP_COLOR};;
-    INFO    ) message_level=${GREEN}${message_level}${STOP_COLOR};;
-    *       ) :;;
-  esac
-
-################################################################################
-# NOTE: Want to replace the value of the HOME environment variable with the    #
-#       literal string '${HOME}' in the message.                               #
-################################################################################
   local stack="${SCRIPT}"
-  local message="${message_level}: ${1//${HOME}/\$\{HOME\}}"
-  message="${message//${USER}/\$\{USER\}}"
-  if [[ -n "${3}" ]]
-  then
-    message="Line = [${3}] ${message}"
-  fi
-
   local -i index
   for ((index = $((${#FUNCNAME[@]} - 1)); index >= 0; index--))
   do
@@ -88,8 +65,40 @@ function log_message
       *                                                ) stack+="::${BASH_LINENO[${index}]}->${FUNCNAME[${index}]}";;
     esac
   done
-  stack="[${stack}] "
-  echo "${stack}${message}"
+  echo "[${stack}] "
+}
+
+# ${1} - message
+# ${2} - message level
+# ${3} - line number (optional)
+function log_message
+{
+  set_color_variables
+  if [[ 0 -eq ${#LOG_MESSAGE_COLOR_MAP[@]} ]]
+  then
+    declare -Ag LOG_MESSAGE_COLOR_MAP
+    LOG_MESSAGE_COLOR_MAP[ERROR]="${RED}ERROR:${STOP_COLOR}"
+    LOG_MESSAGE_COLOR_MAP[WARNING]="${YELLOW}WARNING:${STOP_COLOR}"
+    LOG_MESSAGE_COLOR_MAP[INFO]="${GREEN}INFO:${STOP_COLOR}"
+  fi
+################################################################################
+# NOTE: Want to replace the value of the HOME environment variable with the    #
+#       literal string '${HOME}' in the message.                               #
+################################################################################
+  local message="${3:+Line = [${3}] }${LOG_MESSAGE_COLOR_MAP[${2}]} ${1//${HOME}/\$\{HOME\}}"
+
+################################################################################
+# NOTE: Want to replace the value of the USER environment variable with the    #
+#       literal string '${USER}' in the message.                               #
+################################################################################
+  message="${message//${USER}/\$\{USER\}}"
+
+  local trace
+  if [[ ! "${FUNCNAME[1]}" =~ _no_stack$ ]]
+  then
+    trace="$(get_stack_trace)"
+  fi
+  echo "${trace}${message}"
   return 0
 }
 
@@ -101,17 +110,6 @@ function log_error
   return 0
 }
 
-# ${1} - error message
-# ${2} - line number (optional)
-# NOTE: Let in for possible future use.
-# shellcheck disable=SC2317
-function log_error_no_stack
-{
-  set_color_variables
-  echo "${RED}ERROR${STOP_COLOR}: ${2:+Line = [${2}] }${1}"
-  return 0
-}
-
 # ${1} - warning message
 # ${2} - line number (optional)
 function log_warning
@@ -120,20 +118,9 @@ function log_warning
   return 0
 }
 
-# ${1} - warning message
-# ${2} - line number (optional)
-# NOTE: Let in for possible future use.
-# shellcheck disable=SC2317
-function log_warning_no_stack
-{
-  set_color_variables
-  echo "${YELLOW}WARNING${STOP_COLOR}: ${2:+Line = [${2}] }${1}"
-  return 0
-}
-
 # ${1} - info message
 # ${2} - line number (optional)
-# NOTE: Let in for possible future use.
+# NOTE: Left in for possible future use.
 # shellcheck disable=SC2317
 function log_info
 {
@@ -141,12 +128,31 @@ function log_info
   return 0
 }
 
+# ${1} - error message
+# ${2} - line number (optional)
+# NOTE: Left in for possible future use.
+# shellcheck disable=SC2317
+function log_error_no_stack
+{
+  log_message "${1}" ERROR "${2}"
+  return 0
+}
+
+# ${1} - warning message
+# ${2} - line number (optional)
+# NOTE: Left in for possible future use.
+# shellcheck disable=SC2317
+function log_warning_no_stack
+{
+  log_message "${1}" WARNING "${2}"
+  return 0
+}
+
 # ${1} - info message
 # ${2} - line number (optional)
 function log_info_no_stack
 {
-  set_color_variables
-  echo "${GREEN}INFO${STOP_COLOR}: ${2:+Line = [${2}] }${1}"
+  log_message "${1}" INFO "${2}"
   return 0
 }
 
