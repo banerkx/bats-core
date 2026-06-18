@@ -223,7 +223,7 @@ function compare_newest_commits
   do
     if [[ "${LOCAL_BATS_NEWEST_COMMIT[${key}]}" != "${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}" ]]
     then
-      log_warning "For local repository [${BATS_LOCAL_REPOS[${key}]}] newest commit [${LOCAL_BATS_NEWEST_COMMIT[${key}]}] does not match original repository newest commit [${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}]; original repository url = [${BATS_FORK_SOURCE_URLS[${key}]}]." "${LINENO}"
+      log_warning_no_stack "For local repository [${BATS_LOCAL_REPOS[${key}]}] newest commit [${LOCAL_BATS_NEWEST_COMMIT[${key}]}] does not match original repository newest commit [${BATS_FORK_SOURCE_NEWEST_COMMIT[${key}]}]; original repository url = [${BATS_FORK_SOURCE_URLS[${key}]}]." "${LINENO}"
       show_update_steps "${key}"
       if [[ 0 -eq ${stat} ]]
       then
